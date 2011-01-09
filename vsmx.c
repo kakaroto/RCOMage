@@ -840,14 +840,17 @@ VsmxMem* VsmxEncode(FILE* in) {
 }
 
 #define MAX_TEXT_LEN 4096
-typedef struct __VsmxDecompileStack {
+typedef struct __VsmxDecompileStack VsmxDecompileStack;
+
+struct __VsmxDecompileStack {
 	wchar str[MAX_TEXT_LEN]; // a bit of RAM wastage perhaps
 	VSMXGroup item;
 	int arrayFlag;
 	
-	__VsmxDecompileStack* prev;
+	VsmxDecompileStack* prev;
 	uint depth;
-} VsmxDecompileStack;
+};
+
 static inline void VsmxDecompileStackPush(VsmxDecompileStack** stack, VsmxDecompileStack* item) {
 	VsmxDecompileStack* newItem = (VsmxDecompileStack*)malloc(sizeof(VsmxDecompileStack));
 	*newItem = *item;
@@ -874,13 +877,16 @@ static inline void VsmxDecompileStackDestroy(VsmxDecompileStack** stack) {
 	}
 }
 
-typedef struct __VsmxDecompMarkStack {
+typedef struct __VsmxDecompMarkStack VsmxDecompMarkStack;
+
+struct __VsmxDecompMarkStack {
 	uint loc;
 	uint src;
-	
-	__VsmxDecompMarkStack* prev;
+
+	VsmxDecompMarkStack* prev;
 	uint depth;
-} VsmxDecompMarkStack;
+};
+
 static inline void VsmxDecompMarkStackPush(VsmxDecompMarkStack** stack, VsmxDecompMarkStack* item) {
 	VsmxDecompMarkStack* newItem = (VsmxDecompMarkStack*)malloc(sizeof(VsmxDecompMarkStack));
 	*newItem = *item;
