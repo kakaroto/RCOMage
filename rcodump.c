@@ -465,7 +465,7 @@ void dump_text_resources(char* labels, rRCOEntry* parent, Bool writeHeader, char
 				} */
 				uint nullsStripped = 0;
 				while(dataLen) {
-					iconv(ic, (const char**)(&bufIn), (size_t*)(&dataLen), &bufOut, (size_t*)(&outBufLen));
+					iconv(ic, (&bufIn), (size_t*)(&dataLen), &bufOut, (size_t*)(&outBufLen));
 					if(buf == bufOut) {
 						warning("iconv failed when converting resource '%s'.", get_label_from_offset(labels, idx->labelOffset));
 						break;

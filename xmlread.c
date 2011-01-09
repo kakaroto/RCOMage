@@ -584,8 +584,8 @@ void parse_entry(xmlNodePtr node, rRCOEntry* entry, rRCOFile* rco, rcoxml_read_f
 													fileread(fp, fBuf, fSize);
 													iconv_t ic = iconv_open(destFmt, srcFmt);
 													// get rid of BOM made by iconv
-													iconv(ic, (const char**)(&fBuf), (size_t*)(&fSize), (char**)&bom, (size_t*)(&bomLen));
-													iconv(ic, (const char**)(&fBuf), (size_t*)(&fSize), (char**)&bufferPos, (size_t*)(&te->indexes[i].length));
+													iconv(ic, (char**)(&fBuf), (size_t*)(&fSize), (char**)&bom, (size_t*)(&bomLen));
+													iconv(ic, (char**)(&fBuf), (size_t*)(&fSize), (char**)&bufferPos, (size_t*)(&te->indexes[i].length));
 													iconv_close(ic);
 												} else
 													fileread(fp, bufferPos, te->indexes[i].length);
@@ -1474,9 +1474,9 @@ Bool parse_text_xml(char* fn, rRCOFile* rco, rRCOEntry* entry) {
 								char bom[4];
 								char *bomPtr = bom;
 								uint bomLen = (fmt == RCO_TEXT_FMT_UTF32 ? 4 : (fmt == RCO_TEXT_FMT_UTF8 ? 3 : 2));
-								iconv(ic, (const char**)(&n), (size_t*)(&contentLen), (char**)&bomPtr, (size_t*)(&bomLen));
+								iconv(ic, (char**)(&n), (size_t*)(&contentLen), (char**)&bomPtr, (size_t*)(&bomLen));
 							}
-							iconv(ic, (const char**)(&n), (size_t*)(&contentLen), &tbPtr, (size_t*)(&outBufLen));
+							iconv(ic, (char**)(&n), (size_t*)(&contentLen), &tbPtr, (size_t*)(&outBufLen));
 							if(outBufLen && outBufLen == charWidth) { // *should* always be true
 								memset(tbPtr, 0, ALIGN_TO_4(te->indexes[i].length) - (te->indexes[i].length-outBufLen));
 							} else
