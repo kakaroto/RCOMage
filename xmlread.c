@@ -538,25 +538,28 @@ void parse_entry(xmlNodePtr node, rRCOEntry* entry, rRCOFile* rco, rcoxml_read_f
 												// do we have a BOM?
 												unsigned char bom[4] = {0x80, 0x80, 0x80, 0x80}; // dummy values that aren't used
 												char srcFmt[10] = "", destFmt[8];
-												uint32 tmp32 = ENDIAN_SWAP(UTF32_BOM);
-												uint16 tmp16 = ENDIAN_SWAP(UTF16_BOM);
+												uint32 bom32le = UTF32_BOM;
+												uint32 bom32be = ENDIAN_SWAP(UTF32_BOM);
+												uint16 bom16le = UTF16_BOM;
+												uint16 bom16be = ENDIAN_SWAP(UTF16_BOM);
+												uint32 bom8 = UTF8_BOM;
 												uint bomLen = (te->format == RCO_TEXT_FMT_UTF32 ? 4 : (te->format == RCO_TEXT_FMT_UTF8 ? 3 : 2));
 												make_iconv_charset(destFmt, te->format, rco->eSwap);
 												
 												fileread(fp, bom, 4);
-												if(!memcmp(bom, &UTF32_BOM, sizeof(UTF32_BOM))) {
+												if(!memcmp(bom, &bom32le, sizeof(bom32le))) {
 													strcpy(srcFmt, "utf-32le");
 													bomLen = 4;
-												} else if(!memcmp(bom, &tmp32, sizeof(tmp32))) {
+												} else if(!memcmp(bom, &bom32be, sizeof(bom32be))) {
 													strcpy(srcFmt, "utf-32be");
 													bomLen = 4;
-												} else if(!memcmp(bom, &UTF16_BOM, sizeof(UTF16_BOM))) {
+												} else if(!memcmp(bom, &bom16le, sizeof(bom16le))) {
 													strcpy(srcFmt, "utf-16le");
 													bomLen = 2;
-												} else if(!memcmp(bom, &tmp16, sizeof(tmp16))) {
+												} else if(!memcmp(bom, &bom16be, sizeof(bom16be))) {
 													strcpy(srcFmt, "utf-16be");
 													bomLen = 2;
-												} else if(bom[0] == 0xEF && bom[1] == 0xBB && bom[2] == 0xBF) {
+												} else if(!memcmp(bom, &bom8, 3)) {
 													strcpy(srcFmt, "utf-8");
 													bomLen = 3;
 												} else { // don't convert

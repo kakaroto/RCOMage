@@ -55,10 +55,10 @@ typedef int16_t int16;
 typedef uint32_t uint32;
 typedef int32_t int32;
 
-const uint32 UTF8_BOM = 0xBFBBEF;
-const uint16 UTF16_BOM = 0xFEFF;
-const uint32 UTF32_BOM = 0x0000FEFF;
 
+#define UTF8_BOM  ((uint32) 0xBFBBEF)
+#define UTF16_BOM ((uint16) 0xFEFF)
+#define UTF32_BOM ((uint32) 0x0000FEFF)
 
 #define PACK_STRUCT(nam, struc) typedef struct struc __attribute__ ((packed)) nam
 
