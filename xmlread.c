@@ -26,7 +26,7 @@
 
 #define strtof(a,b) (float)strtod(a,b)
 
-/* 
+/*
  * typedef struct { rRCORef* ref; char* label; } xmlrco_read_fix_refs; */
 typedef struct {
   // xmlChar *ptrText, *ptrImg, *ptrSound, *ptrModel, *ptrObj, *ptrAnim;
@@ -42,8 +42,8 @@ uint32_t rcoxml_add_label (char **labels, uint32_t * labelsLen, char *label,
     uint8_t eventQuirk);
 uint32_t rcoxml_add_label_reordering (char *newLabels, uint32_t * labelPos,
     char *label);
-void rcoxml_reorder_labels (char *newLabels, uint32_t * labelPos, rRCOFile * rco,
-    rRCOEntry * entry);
+void rcoxml_reorder_labels (char *newLabels, uint32_t * labelPos,
+    rRCOFile * rco, rRCOEntry * entry);
 int label_reorder_qsort (const rRCOEntry ** a, const rRCOEntry ** b);
 void parse_obj_extra (xmlNodePtr node, rRCOEntry * entry);
 void parse_anim_extra (xmlNodePtr node, rRCOEntry * entry);
@@ -108,7 +108,7 @@ read_xml (char *fn)
   xmlNodePtr nodeChild;
 
   if (bValidDoc) {		// valid document must contain at least one
-				// thing under RcoFile (MainTree)
+    // thing under RcoFile (MainTree)
     nodeChild = node->xmlChildrenNode;
     while (nodeChild->next && nodeChild->type != XML_ELEMENT_NODE)
       nodeChild = nodeChild->next;
@@ -214,12 +214,13 @@ read_xml (char *fn)
 
   rco->eSwap = rco->ps3;
 
-  /* 
+  /*
    * rco->tblMain.id = rco->tblMain.type = 0; rco->tblMain.labelOffset = 0;
    * rco->tblMain.numSubentries = rco->tblMain.extraLen = 0; */
 
   parse_entry (nodeChild, &(rco->tblMain), rco, &fixes);
-  // TODO: ensure the first table _is_ the main table (and possibly then verify 
+  // TODO: ensure the first table _is_ the main table (and possibly then verify
+  //
   // tree structure)
 
   // - post fixes -
@@ -355,31 +356,32 @@ parse_entry (xmlNodePtr node, rRCOEntry * entry, rRCOFile * rco,
 		  &(entry->srcLen), compr) >= 2) {
 	    entry->srcLen -= entry->srcAddr;
 	    entry->srcLenUnpacked = entry->srcLen;	// default - assume no
-							// compression
+	    // compression
 	    if (compr[0]) {
 	      // TODO: handle situations where uncompressed size is not
 	      // specified
-	      if (sscanf (compr, ";zlib[%u]", &(entry->srcLenUnpacked)) == 1) {	// TODO: 
-										// a 
-										// temporary 
-										// fix 
-										// (prolly 
-										// need 
-										// to 
-										// add 
-										// more 
-										// compression 
-										// algos, 
-										// since 
-										// sscanf 
-										// seems 
-										// to 
-										// be 
-										// rather 
-										// basic 
-										// in 
-										// retrieving 
-										// %s)
+	      if (sscanf (compr, ";zlib[%u]", &(entry->srcLenUnpacked)) == 1) {	// TODO:
+		//
+		// a
+		// temporary
+		// fix
+		// (prolly
+		// need
+		// to
+		// add
+		// more
+		// compression
+		// algos,
+		// since
+		// sscanf
+		// seems
+		// to
+		// be
+		// rather
+		// basic
+		// in
+		// retrieving
+		// %s)
 		rcoxml_text_to_int ("zlib", RCOXML_TABLE_DATA_COMPRESSION,
 		    &(entry->srcCompression));
 	      } else if (!strcmp (compr, ";rco")) {
@@ -394,13 +396,14 @@ parse_entry (xmlNodePtr node, rRCOEntry * entry, rRCOFile * rco,
 	  xmlFree (src);
 	} else {
 	  entry->srcAddr = 0;
-	  entry->srcLen = entry->srcLenUnpacked = filesize (entry->srcFile);	// won't 
-										// work 
-										// if 
-										// filename 
-										// contains 
-										// a 
-										// '*'
+	  entry->srcLen = entry->srcLenUnpacked = filesize (entry->srcFile);	// won't
+	  //
+	  // work
+	  // if
+	  // filename
+	  // contains
+	  // a
+	  // '*'
 	}
       }
     }
@@ -539,7 +542,8 @@ parse_entry (xmlNodePtr node, rRCOEntry * entry, rRCOFile * rco,
 			srcBufferTmp =
 			    realloc (srcBufferTmp,
 			    curPos + ALIGN_TO_4 (se->channelData[i * 2]));
-			uint8_t *bufferPos = (uint8_t *) (srcBufferTmp) + curPos;
+			uint8_t *bufferPos =
+			    (uint8_t *) (srcBufferTmp) + curPos;
 
 			fileread (fp, bufferPos, se->channelData[i * 2]);
 			fclose (fp);
@@ -673,11 +677,12 @@ parse_entry (xmlNodePtr node, rRCOEntry * entry, rRCOFile * rco,
 
 		      if (fp) {
 			// do we have a BOM?
-			unsigned char bom[4] = { 0x80, 0x80, 0x80, 0x80 };	// dummy 
-										// values 
-										// that 
-										// aren't 
-										// used
+			unsigned char bom[4] = { 0x80, 0x80, 0x80, 0x80 };	// dummy
+			//
+			// values
+			// that
+			// aren't
+			// used
 			char srcFmt[10] = "", destFmt[8];
 			uint32_t bom32le = UTF32_BOM;
 			uint32_t bom32be = ENDIAN_SWAP (UTF32_BOM);
@@ -759,10 +764,10 @@ parse_entry (xmlNodePtr node, rRCOEntry * entry, rRCOFile * rco,
 			 * } if(te->indexes[i].length <= 2) { // this is
 			 * probably blank te->indexes[i].length = 0; } else {
 			 * srcBufferTmp = realloc(srcBufferTmp, curPos +
-			 * ALIGN_TO_4(te->indexes[i].length)); uint8_t* bufferPos 
-			 * = (uint8_t*)srcBufferTmp + curPos; fileread(fp,
-			 * bufferPos, te->indexes[i].length-2); // add
-			 * terminating null & any necessary padding
+			 * ALIGN_TO_4(te->indexes[i].length)); uint8_t*
+			 * bufferPos = (uint8_t*)srcBufferTmp + curPos;
+			 * fileread(fp, bufferPos, te->indexes[i].length-2); //
+			 * add terminating null & any necessary padding
 			 * memset(bufferPos + (te->indexes[i].length-2), 0,
 			 * ALIGN_TO_4(te->indexes[i].length) -
 			 * (te->indexes[i].length-2)); } */
@@ -928,7 +933,8 @@ rcoxml_text_to_int (char *s, const RcoTableMap map, uint32_t * out)
 // currently very basic - resize when adding a label
 // uint32_t rcoxml_add_label(rRCOFile* rco, char* label) {
 uint32_t
-rcoxml_add_label (char **labels, uint32_t * labelsLen, char *label, uint8_t eventQuirk)
+rcoxml_add_label (char **labels, uint32_t * labelsLen, char *label,
+    uint8_t eventQuirk)
 {
   // first, see if we already have this label
   uint32_t p = 0;
@@ -938,11 +944,11 @@ rcoxml_add_label (char **labels, uint32_t * labelsLen, char *label, uint8_t even
       return p;			// found
     p += strlen (*labels + p) + 1;
     p = ALIGN_TO_4 (p);		// urgh, this is kinda a little dirty, but it
-				// works; if we hit a blank 4 bytes, the above
-				// line will cause it to go forward by 1, this
-				// will align it forward to 4, so, if we've hit 
-				// some nulls, we're effectively jumping 4
-				// bytes at a time
+    // works; if we hit a blank 4 bytes, the above
+    // line will cause it to go forward by 1, this
+    // will align it forward to 4, so, if we've hit
+    // some nulls, we're effectively jumping 4
+    // bytes at a time
   }
 
   // don't have it? add it
@@ -950,7 +956,7 @@ rcoxml_add_label (char **labels, uint32_t * labelsLen, char *label, uint8_t even
   uint32_t labelLen = strlen (label) + 1;
 
   if (eventQuirk) {
-    // TODO: 
+    // TODO:
   }
   uint32_t newLen = curLen + labelLen;
 
@@ -963,10 +969,10 @@ rcoxml_add_label (char **labels, uint32_t * labelsLen, char *label, uint8_t even
   }
   *labelsLen = newLen;
 
-  /* 
-   * uint32_t curLen = rco->labelsLen; uint32_t newLen = rco->labelsLen + strlen(label) 
+  /*
+   * uint32_t curLen = rco->labelsLen; uint32_t newLen = rco->labelsLen + strlen(label)
    * + 1;
-   * 
+   *
    * rco->labels = (char*)realloc(rco->labels, newLen); strcpy(curLen, label);
    * rco->labelsLen = newLen; */
   return curLen;
@@ -983,7 +989,7 @@ rcoxml_add_label_reordering (char *newLabels, uint32_t * labelPos, char *label)
       return p;			// found
     p += strlen (newLabels + p) + 1;
     p = ALIGN_TO_4 (p);		// dirty, but it works (see note from
-				// rcoxml_add_label)
+    // rcoxml_add_label)
   }
 
   // don't have it? add it
@@ -1039,7 +1045,8 @@ parse_obj_extra (xmlNodePtr node, rRCOEntry * entry)
 
     // work out the length of this thing, lol
     entry->extraLen = RCO_OBJ_EXTRA_LEN[entry->type] * sizeof (uint32_t);
-    for (i = 0, i2 = 0; i < (uint32_t) RCO_OBJ_EXTRA_LEN[entry->type]; i++, i2++) {
+    for (i = 0, i2 = 0; i < (uint32_t) RCO_OBJ_EXTRA_LEN[entry->type];
+	i++, i2++) {
       if (RCO_OBJ_IS_REF (entry->type, i2)) {
 	entry->extraLen -= 2 * sizeof (uint32_t);
 	entry->extraLen += sizeof (rRCORef);
@@ -1118,9 +1125,9 @@ parse_obj_extra (xmlNodePtr node, rRCOEntry * entry)
 	    warning
 		("[line %d] Unable to parse reference '%s' - defaulting to 'nothing'.",
 		node->line, (char *) val);
-	  /* 
+	  /*
 	   * // we really need to fix refs after all entries are loaded - I'm
-	   * going to be lazy here since we can't actually do anything terribly 
+	   * going to be lazy here since we can't actually do anything terribly
 	   * useful right now ((rRCORef*)extra)->type = RCO_REF_NONE;
 	   * add_ref_to_fix(fixes, , (rRCORef*)extra); */
 	} else {
@@ -1150,7 +1157,8 @@ parse_anim_extra (xmlNodePtr node, rRCOEntry * entry)
 
     // work out the length of this thing, lol
     entry->extraLen = RCO_ANIM_EXTRA_LEN[entry->type] * sizeof (uint32_t);
-    for (i = 0, i2 = 0; i < (uint32_t) RCO_ANIM_EXTRA_LEN[entry->type]; i++, i2++) {
+    for (i = 0, i2 = 0; i < (uint32_t) RCO_ANIM_EXTRA_LEN[entry->type];
+	i++, i2++) {
       if (RCO_ANIM_IS_REF (entry->type, i2)) {
 	entry->extraLen -= 2 * sizeof (uint32_t);
 	entry->extraLen += sizeof (rRCORef);
@@ -1229,9 +1237,9 @@ parse_anim_extra (xmlNodePtr node, rRCOEntry * entry)
 	    warning
 		("[line %d] Unable to parse reference '%s' - defaulting to 'nothing'.",
 		node->line, (char *) val);
-	  /* 
+	  /*
 	   * // we really need to fix refs after all entries are loaded - I'm
-	   * going to be lazy here since we can't actually do anything terribly 
+	   * going to be lazy here since we can't actually do anything terribly
 	   * useful right now ((rRCORef*)extra)->type = RCO_REF_NONE;
 	   * add_ref_to_fix(fixes, , (rRCORef*)extra); */
 	} else {
@@ -1251,49 +1259,49 @@ parse_anim_extra (xmlNodePtr node, rRCOEntry * entry)
   }
 }
 
-/* 
+/*
  * void parse_anim_extra(xmlNodePtr node, rRCOEntry* entry) {
- * 
+ *
  * if(entry->type <= RCO_ANIM_EXTRA_LEN_NUM && RCO_ANIM_EXTRA_LEN[entry->type]
  * != -1) { uint32_t i = 0;
- * 
- * entry->extraLen = 0; for(i=0, i2=0; i<(uint32_t)RCO_ANIM_EXTRA_LEN[entry->type]; 
+ *
+ * entry->extraLen = 0; for(i=0, i2=0; i<(uint32_t)RCO_ANIM_EXTRA_LEN[entry->type];
  * i++, i2++) { if(RCO_ANIM_IS_REF(entry->type, i2)) { entry->extraLen +=
  * sizeof(rRCORef); i++; } else entry->extraLen += sizeof(uint32_t); }
- * 
+ *
  * //if(RCO_ANIM_EXTRA_REFS[entry->type]) { // entry->extraLen =
  * (RCO_ANIM_EXTRA_LEN[entry->type]-2) * sizeof(uint32_t) + sizeof(rRCORef); //}
  * else { // entry->extraLen = RCO_ANIM_EXTRA_LEN[entry->type] *
  * sizeof(uint32_t); //}
- * 
+ *
  * entry->extra = malloc(entry->extraLen); uint8_t* extra = (uint8_t*)entry->extra;
  * memset(extra, 0, entry->extraLen);
- * 
+ *
  * uint32_t entryLen = (uint32_t)RCO_ANIM_EXTRA_LEN[entry->type];
- * 
- * if(RCO_ANIM_EXTRA_REFS[entry->type]) { xmlChar* val = NULL; if(entry->type == 
+ *
+ * if(RCO_ANIM_EXTRA_REFS[entry->type]) { xmlChar* val = NULL; if(entry->type ==
  * RCO_ANIM_TYPE_EVENT) val = xmlGetProp(node, _X("event")); else val =
  * xmlGetProp(node, _X("object"));
- * 
+ *
  * if(val) { if(!rcoxml_parse_ref((char*)val, (rRCORef*)extra)) warning("[line
  * %d] Unable to parse object reference '%s' - defaulting to 'nothing'.",
  * node->line, (char*)val); } else { warning("[line %d] No object/event defined
  * for anim entry.  Defaulting to nothing.", node->line); // blank ref rRCORef*
- * dr = ((rRCORef*)extra); dr->type = RCO_REF_NONE; dr->ptr = NULL; dr->rawPtr = 
+ * dr = ((rRCORef*)extra); dr->type = RCO_REF_NONE; dr->ptr = NULL; dr->rawPtr =
  * RCO_NULL_PTR; } extra += sizeof(rRCORef); entryLen -=2; }
- * 
+ *
  * for(i=0; i<entryLen; i++) { xmlChar* val = NULL;
  * if(RCO_ANIM_EXTRA_NAMES[entry->type][i][0]) { val = xmlGetProp(node,
  * _X(RCO_ANIM_EXTRA_NAMES[entry->type][i])); } if(!val) { val =
  * rcoxml_get_unknown_attrib(node, i); }
- * 
+ *
  * if(!val) { if(RCO_ANIM_EXTRA_NAMES[entry->type][i][0]) { warning("[line %d]
  * Missing attribute '%s', defaulting to 0 / nothing.", node->line,
  * RCO_ANIM_EXTRA_NAMES[entry->type][i]); } else { warning("[line %d] Missing
  * attribute (index %d), defaulting to 0 / nothing.", node->line, i); // TODO:
  * better message } *(uint32_t*)extra = 0; } else { *(uint32_t*)extra =
  * rcoxml_parse_value((char*)val); xmlFree(val); }
- * 
+ *
  * extra += sizeof(uint32_t); } } else { // TODO: handle unknown types } } */
 
 // TODO: this somewhat mixes normal vals with refs (not optimal) - may wish to
@@ -1378,10 +1386,10 @@ rcoxml_parse_ref (char *val, rRCORef * out)
 
   if (out->type == RCO_REF_NONE) {	// not assigned by above ifs
     if (sscanf (val, "unknown%i", (int *) &(out->type))) {	// this is
-								// actually
-								// case
-								// sensitive... 
-								// :|
+      // actually
+      // case
+      // sensitive...
+      // :|
       out->rawPtr = strtol (colon, NULL, 10);
       return TRUE;
     } else {
@@ -1395,16 +1403,16 @@ rcoxml_parse_ref (char *val, rRCORef * out)
   return TRUE;
 }
 
-/* 
+/*
  * // a very simple resize method :/ void add_ref_to_fix(rcoxml_read_fixes*
  * fixes, char* label, rRCORef* ref) { fixes->refs =
  * (xmlrco_read_fix_refs*)realloc(fixes->refs, sizeof(xmlrco_read_fix_refs) *
  * (fixes->refCnt+1)); xmlrco_read_fix_refs* fr =
  * &(fixes->refs[fixes->refsCnt]);
- * 
- * fr->ref = ref; fr->label = (char*)malloc(strlen(label)+1); strcpy(fr->label, 
+ *
+ * fr->ref = ref; fr->label = (char*)malloc(strlen(label)+1); strcpy(fr->label,
  * label);
- * 
+ *
  * fixes->refsCnt++; } */
 
 void
@@ -1435,12 +1443,12 @@ rcoxml_fix_refs (rRCOEntry * entry, rRCOFile * rco)
       } else
 	extra += sizeof (uint32_t);
     }
-    /* 
+    /*
      * if(entry->id == RCO_TABLE_OBJ) { for(i=0, i2=0;
      * (int)i<RCO_OBJ_EXTRA_LEN[entry->type]; i++, i2++) {
      * if(RCO_OBJ_IS_REF(entry->type, i2)) { rcoxml_fix_ref((rRCORef*)extra,
      * rco); extra += sizeof(rRCORef); i++; } else extra += sizeof(uint32_t); }
-     * 
+     *
      * } else { // anim entries if(RCO_ANIM_EXTRA_REFS[entry->type]) {
      * rcoxml_fix_ref((rRCORef*)extra, rco); } } */
   }
@@ -1541,7 +1549,7 @@ rcoxml_fix_ptrs (rRCOEntry *** sect, uint32_t * sectCnt, rRCOFile * rco,
 
   uint32_t i;
 
-  /* 
+  /*
    * for(i=0; i<textLen; i++) if(tmpText[i] == ',') { (*sectCnt)++; tmpText[i]
    * = '\0'; } */
   *sectCnt = split_comma_list (tmpText);
@@ -1585,8 +1593,9 @@ split_comma_list (char *s)
     if (s[i] == ',') {
       cnt++;
       s[i] = '\0';
-    }				// else if(s[i] == '\t' || s[i] == '\r' || s[i] 
-				// == '\n' || s[i] == ' ') // whitespace
+    }				// else if(s[i] == '\t' || s[i] == '\r' || s[i]
+  //
+  // == '\n' || s[i] == ' ') // whitespace
   // s[i] = '\0';
 
   return cnt;
@@ -1630,8 +1639,8 @@ expand_fname_to_fmt (char *in, char type)
       memcpy (newStrPtr, prevP, p - prevP);
       newStrPtr += p - prevP;
     }
-    /* 
-     * newStrPtr[0] = '%'; newStrPtr[1] = '1'; newStrPtr[2] = '$'; newStrPtr[3] 
+    /*
+     * newStrPtr[0] = '%'; newStrPtr[1] = '1'; newStrPtr[2] = '$'; newStrPtr[3]
      * = type; newStrPtr += 4; */
     newStrPtr[0] = '%';
     newStrPtr[1] = type;
@@ -1730,13 +1739,13 @@ parse_text_xml (char *fn, rRCOFile * rco, rRCOEntry * entry)
 	      te->indexes[i].length =
 		  (xmlUTF8Strlen (n) + 1 /* null */ ) * charWidth;
 	      if ((*(uint32_t *) n & 0xFFFFFF) == UTF8_BOM) {	// fix for
-								// older
-								// versions of
-								// rcomage - if 
-								// BOM exists,
-								// reduce
-								// length by 1
-								// char
+		// older
+		// versions of
+		// rcomage - if
+		// BOM exists,
+		// reduce
+		// length by 1
+		// char
 		te->indexes[i].length -= charWidth;
 	      }
 	    }
@@ -1768,8 +1777,8 @@ parse_text_xml (char *fn, rRCOFile * rco, rRCOEntry * entry)
 	      iconv (ic, (char **) (&n), (size_t *) (&contentLen), &tbPtr,
 		  (size_t *) (&outBufLen));
 	      if (outBufLen && outBufLen == charWidth) {	// *should*
-								// always be
-								// true
+		// always be
+		// true
 		memset (tbPtr, 0,
 		    ALIGN_TO_4 (te->indexes[i].length) -
 		    (te->indexes[i].length - outBufLen));

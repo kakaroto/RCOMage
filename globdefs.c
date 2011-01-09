@@ -44,7 +44,7 @@ RcoTableMap RCOXML_TABLE_IMG_FMT = NULL;
 RcoTableMap RCOXML_TABLE_MODEL_FMT = NULL;
 RcoTableMap RCOXML_TABLE_SOUND_FMT = NULL;
 
-// const RcoTableMap RCOXML_TABLE_REFTYPE = {"event", "text"}; // TODO: 
+// const RcoTableMap RCOXML_TABLE_REFTYPE = {"event", "text"}; // TODO:
 
 RcoTagMap RCOXML_TABLE_TAGS = NULL;
 

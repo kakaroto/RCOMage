@@ -25,7 +25,8 @@ void dump_resources (char *labels, rRCOEntry * parent, const RcoTableMap extMap,
 void dump_text_resources (char *labels, rRCOEntry * parent, uint8_t writeHeader,
     char *pathPrefix, uint8_t bWriteXML);
 uint8_t dump_output_data (char *dest, void *buf, rRCOEntry * entry, void *arg);
-uint8_t dump_output_vsmxdec (char *dest, void *buf, rRCOEntry * entry, void *arg);
+uint8_t dump_output_vsmxdec (char *dest, void *buf, rRCOEntry * entry,
+    void *arg);
 
 void compile_gimconv_map (rRCOFile * rco, rRCOEntry * entry, void *arg);
 void compile_vagconv_map (rRCOFile * rco, rRCOEntry * entry, void *arg);

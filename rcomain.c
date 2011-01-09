@@ -48,11 +48,11 @@ get_label_from_offset (char *labels, uint32_t labelOffset)
   }
 }
 
-/* 
+/*
  * rRCOEntry* rco_add_entry(rRCOEntry* parent, rRCOEntry* newEntry, int pos) {
  * rRCOEntry* dest; if(pos != -1 && pos > (int)(parent->numSubentries)) return
  * NULL;
- * 
+ *
  * if(!parent->numSubentries) { parent->subentries =
  * (rRCOEntry*)malloc(sizeof(rRCOEntry)); dest = parent->subentries; } else {
  * parent->subentries = (rRCOEntry*)realloc(parent->subentries,
@@ -62,9 +62,9 @@ get_label_from_offset (char *labels, uint32_t labelOffset)
  * parent->numSubentries - pos; //rRCOEntry* tmpBuffer = (rRCOEntry*)malloc()
  * memcpy(&(parent->subentries[pos+1]), &(parent->subentries[pos]),
  * numEntriesToMove * sizeof(rRCOEntry)); } }
- * 
+ *
  * parent->numSubentries++; memcpy(dest, newEntry, sizeof(rRCOEntry));
- * 
+ *
  * return dest; } */
 
 // parses an RCO (give it the main entry) to fix any resource which is
@@ -139,7 +139,8 @@ read_resource (rRCOEntry * entry, uint32_t * outLen)
     }
 
     if (entry->srcCompression == RCO_DATA_COMPRESSION_RCO) {
-      // special case where stuff is embedded in RCO - this should only be used 
+      // special case where stuff is embedded in RCO - this should only be used
+      //
       // with VSMX, so we'll take a short cut here, but:
       // TODO: do some extra checks to enforce the above
 
@@ -484,7 +485,7 @@ es_extraObjAnim (uint8_t isObj, int type, void *data, uint8_t isPS3)
 
 #define ENDIAN_SWAP_HALF32(x) (((x) & 0xFF) << 8 | ((x) & 0xFF00) >> 8 | ((x) & 0xFF0000) << 8 | ((x) & 0xFF000000) >> 8)
 
-  /* 
+  /*
    * if(!isObj && RCO_ANIM_EXTRA_REFS[type]) { uData[0] =
    * ENDIAN_SWAP_HALF32(uData[0]); uData[1] = ENDIAN_SWAP(uData[1]); i = 2; } */
 

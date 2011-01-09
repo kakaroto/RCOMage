@@ -31,15 +31,15 @@ typedef struct {
 
 typedef struct __rRCOEntry {
   uint8_t type;			// main table uses 0x01; may be used as a
-				// current entry depth value
+  // current entry depth value
   uint8_t id;
   // char* label;
   uint32_t labelOffset;
 
-  uint32_t offset;			// absolute offset of this entry in file (only
-				// used when reading/writing RCOs - means
-				// nothing otherwise; also, writing the RCO may 
-				// change this value)
+  uint32_t offset;		// absolute offset of this entry in file (only
+  // used when reading/writing RCOs - means
+  // nothing otherwise; also, writing the RCO may
+  // change this value)
   // this value is also used to store the line number of the node when reading
   // an XML
 
@@ -59,12 +59,12 @@ typedef struct __rRCOEntry {
   uint32_t srcAddr;
   uint32_t srcLen;
   uint32_t srcLenUnpacked;
-  uint32_t srcCompression;		// use RCO_DATA_COMPRESSION_* constants in
-				// rcofile.h
+  uint32_t srcCompression;	// use RCO_DATA_COMPRESSION_* constants in
+  // rcofile.h
   void *srcBuffer;		// work around for reading XML; should only be
-				// used for sound and text entries; need to
-				// check if srcFile contains a '*', then use
-				// this
+  // used for sound and text entries; need to
+  // check if srcFile contains a '*', then use
+  // this
 } rRCOEntry;
 
 typedef struct {
@@ -74,7 +74,8 @@ typedef struct {
   RCOTextIndex *indexes;
 } rRCOTextEntry;
 
-/* packed_struct { char* label; uint32_t length; uint32_t offset; } rRCOTextIndex; */
+/* packed_struct { char* label; uint32_t length; uint32_t offset; }
+ * rRCOTextIndex; */
 typedef struct {
   rRCOEntry *textEntry;
   RCOTextIndex *index;
@@ -89,7 +90,7 @@ typedef struct __rRCOFile {
   char *events;
   uint32_t eventsLen;
 
-  /* 
+  /*
    * // pointer segments rRCOTextIdxPtr* ptrText; uint32_t numPtrText; rRCOEntry**
    * ptrImg; uint32_t numPtrImg; rRCOEntry** ptrModel; uint32_t numPtrModel;
    * rRCOEntry** ptrSound; uint32_t numPtrSound; rRCOEntry** ptrObj; uint32_t
@@ -107,7 +108,7 @@ typedef struct __rRCOFile {
 
   // additional info about the source (mainly used for displaying info about
   // the RCO)
-  uint32_t verId;			// offset 0x04 in file
+  uint32_t verId;		// offset 0x04 in file
   uint32_t umdFlag;
   uint32_t headerCompression;
   uint8_t eSwap;
@@ -117,27 +118,28 @@ typedef struct __rRCOFile {
 
 typedef struct {
   uint32_t type;
-  void *ptr;			// will usu be rRCOEntry*, but may be char* for 
-				// events; NULL if type is nothing
+  void *ptr;			// will usu be rRCOEntry*, but may be char* for
+  //
+  // events; NULL if type is nothing
   uint32_t rawPtr;		// raw value from source - means nothing if
-				// type is known
+  // type is known
 } rRCORef;
 
 typedef struct {
   uint32_t format;
   uint32_t compression;
   uint32_t unkCompr;		// unknown - usually 0, some PS3 rcos have 1
-				// here
+  // here
 } rRCOImgModelEntry;
 
 typedef struct {
   uint16_t format;		// 0x01 = VAG
   uint16_t channels;		// 1 or 2 channels
-  uint32_t *channelData;		// size/offset pairs
+  uint32_t *channelData;	// size/offset pairs
 } rRCOSoundEntry;
 
 typedef struct {
-  uint32_t format;			// 1
+  uint32_t format;		// 1
   uint32_t compression;		// 0
   uint32_t unknown;
   uint32_t unknown2;
@@ -234,25 +236,32 @@ PACK_STRUCT (RCOObjPos, {
       float colR;
       float colG;
       float colB;
-      float colA;		// RGBA colour weights
+      float colA;		// RGBA
+
+      // colour
+      // weights
       float dimW;
       float dimH;
       float unknown;
       float sclX;
-      float sclY;		// scale values
+      float sclY;		// scale
+
+      // values
       float elemScale;
 
-      uint32_t iconOffset;	// unknown weird value, appears to affect icon
-				// offsetting. Only lowest byte appears to have 
-				// any effects - upper nibble appears to affect 
-				// Y offset, and lower nibble affects X offset
-				// somehow.
-      rRCORef loadAction;	// the event/anim executed on image load (note, 
-				// load, not display) or describes when image
-				// is loaded? (eg onShadowInit)
+      uint32_t iconOffset;	// unknown weird value, appears
+      // to affect icon
+      // offsetting. Only lowest byte appears to have
+      // any effects - upper nibble appears to affect
+      // Y offset, and lower nibble affects X offset
+      // somehow.
+      rRCORef loadAction;	// the event/anim executed on image load (note,
+      //
+      // load, not display) or describes when image
+      // is loaded? (eg onShadowInit)
     });
 
-/* 
+/*
  * PACK_STRUCT(RCOObjSPage, { uint32_t unknown; // usu 0x111, sometimes 0xFFFF
  * (only seen in UMD video RCOs) rRCORef event1; rRCORef event2; rRCORef
  * event3; rRCORef event4; }); // 0x01 PACK_STRUCT(RCOObjSPlane, { RCOObjPos
@@ -260,7 +269,7 @@ PACK_STRUCT (RCOObjPos, {
  * effect on height.  Upper 2 bytes seem to have no effect. }); // 0x02
  * PACK_STRUCT(RCOObjSButton, { // this page seems to be for buttons/pane
  * items. for "buttons", has events for "Push", "FocusIn", "FocusOut" etc
- * RCOObjPos pos; rRCORef image; rRCORef shadow; // usu this & above images are 
+ * RCOObjPos pos; rRCORef image; rRCORef shadow; // usu this & above images are
  * img/shadow pairs rRCORef image2; rRCORef ref; rRCORef event1; rRCORef
  * event2; rRCORef event3; rRCORef event4; rRCORef event5; rRCORef event6;
  * rRCORef event7; rRCORef event8; uint32_t unknown; // appears to be 0xFFFFFFFF
@@ -311,13 +320,13 @@ PACK_STRUCT (RCOObjPos, {
  * ref2; rRCORef ref3; rRCORef ref4; rRCORef ref5; rRCORef ref6; rRCORef event;
  * rRCORef ref7; }); // 0x13 PACK_STRUCT(RCOObjSLItem, { rRCORef text; rRCORef
  * ref1; rRCORef ref2; }); // 0x14 PACK_STRUCT(RCOObjSEdit, { RCOObjPos pos;
- * uint32_t unknown; // dunno whether hex or float uint32_t unknown2; // dunno whether 
- * hex or float uint32_t unknown3; // dunno whether hex or float uint32_t unknown4; // 
+ * uint32_t unknown; // dunno whether hex or float uint32_t unknown2; // dunno whether
+ * hex or float uint32_t unknown3; // dunno whether hex or float uint32_t unknown4; //
  * dunno whether hex or float rRCORef ref1; rRCORef ref2; rRCORef event1; rRCORef
  * ref3; rRCORef ref4; rRCORef ref5; rRCORef event2; rRCORef event3; rRCORef obj1;
  * rRCORef obj2; rRCORef ref6; }); // 0x15 PACK_STRUCT(RCOObjSClock, { RCOObjPos
  * pos; uint32_t unknown; float unknown2; rRCORef text1; rRCORef text2; rRCORef ref1;
- * rRCORef ref2; rRCORef event1; rRCORef event2; rRCORef ref3; rRCORef ref4; rRCORef 
+ * rRCORef ref2; rRCORef event1; rRCORef event2; rRCORef ref3; rRCORef ref4; rRCORef
  * event3; rRCORef event4; rRCORef ref5; rRCORef ref6; rRCORef event5; }); // 0x16
  * PACK_STRUCT(RCOObjSIList, { RCOObjPos pos; float unknown; rRCORef ref1; rRCORef
  * ref2; rRCORef event; rRCORef ref3; }); // 0x17 PACK_STRUCT(RCOObjSIItem, {
@@ -328,10 +337,10 @@ PACK_STRUCT (RCOObjPos, {
  * rRCORef ref1; // [object/event] rRCORef ref2; // [object/event] rRCORef ref3; //
  * [object/event] prev/up? rRCORef ref4; // [object/event] next/down? uint32_t
  * unknown; // 0xFFFFFFFF or 0 }); // 0x1A
- * 
+ *
  * PACK_STRUCT(RCOAnimSPos, { rRCORef obj; float time; uint32_t unknown; float x;
  * float y; float unknown2; }); PACK_STRUCT(RCOAnimSColour, { rRCORef obj; float
- * time; uint32_t unknown; // dunno whether float or int (probably int) float r; float 
+ * time; uint32_t unknown; // dunno whether float or int (probably int) float r; float
  * g; float b; float a; }); PACK_STRUCT(RCOAnimSRotate, { // TODO: this one needs
  * checking rRCORef obj; float time; uint32_t unknown; // dunno whether float or int
  * (probably int) uint32_t unknown2; // dunno whether float or int (probably int)

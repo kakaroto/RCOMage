@@ -34,16 +34,16 @@ int find_match (int *arg_0, unsigned char realMode);
 
 typedef struct {		// unk_421D80
   unsigned char literals[8 * 0xFF];	// grouped in 8 groups of 0xFF; group
-					// selected by has of input position,
-					// last byte and mode, the 0xFF part is 
-					// based on the input byte with various 
-					// shifts
+  // selected by has of input position,
+  // last byte and mode, the 0xFF part is
+  // based on the input byte with various
+  // shifts
   unsigned char distDescLong[0xF0];	// 30x8 (match >= 4)
   unsigned char distDescShort[0x40];	// 8x8 (match < 4)
   unsigned char distances[12 * 0x20];	// grouped in 0x20 based on bit
-					// position
+  // position
   unsigned char lenDesc[0x40];	// 8 x 8; group selected by bit position,
-				// position is var_C from main function
+  // position is var_C from main function
   unsigned char matchlens[0xFF];
 
   void *input;			// 0xCA8
@@ -51,15 +51,15 @@ typedef struct {		// unk_421D80
   // long dword_CB0; // 0xCB0 (0x422A30) - only wrtten to in sub_405810
   // long dword_CB4; // 0xCB4
   int64_t rangeOffset;		// 0xCB0 (0x422A30) - only written to in
-				// sub_405810(), affected by write_bit and
-				// write_match_len
+  // sub_405810(), affected by write_bit and
+  // write_match_len
   // - appears to be a data queue - top 24 bits not used, next 8 bits->data to
   // be written, next 8 bits->data mask; affected by CB8 in some way (CB8 is
   // added to this)
   long rangeSize;		// 0xCB8
   char nextOutputByte;		// 0xCBC - some byte offset; 3rd byte in CB0,
-				// only ever used in sub_405810; guaranteed
-				// never to == 0xFF
+  // only ever used in sub_405810; guaranteed
+  // never to == 0xFF
   char bytesToWrite;		// 0xCBD (0x422A3D) - only used in sub_405810
   char writeLock;		// 0xCBE - only ever used as a switch
   char lastSearchBack;		// 0xCBF - some byte flag used in find_match()
@@ -76,8 +76,8 @@ typedef struct {		// unk_421D80
 
   float sgl_120C84;
   float sgl_120C88;		// starts as 0.0625 and increments by that
-				// amount every time the dictionary coder fails 
-				// to pack stuff
+  // amount every time the dictionary coder fails
+  // to pack stuff
 } RLZ_Info;			// about 1.128MB
 RLZ_Info rlzip;
 RLZ_Info *rlzi = &rlzip;
@@ -96,9 +96,11 @@ rlzcompress (void *output, int inlen, void *input, unsigned char mode)
 	 *  Bits 45 determine the default values to store in literals/distances etc array
 	 *  The first 3 bits aren't used
 	 */
-  int var_C = 0;		// var_C appears to do some tracking in regards 
-				// to how well the dictionary coder is packing
-				// things?
+  int var_C = 0;		// var_C appears to do some tracking in regards
+
+  //
+  // to how well the dictionary coder is packing
+  // things?
   char realMode;
   int dictSearchBack = 0;	// just assign something in case... :S
 
@@ -160,46 +162,49 @@ rlzcompress (void *output, int inlen, void *input, unsigned char mode)
       // write literal
       // the following code was previously sub_405A10( (((((unsigned
       // int)rlzi->inputpos & 7) << 8) | lastInputByte) >> realMode) & 7 )
-      int arg_ecx = (((((unsigned int) rlzi->inputpos & 7) << 8) | lastInputByte) >> realMode) & 7;	// top 
-													// bit 
-													// in 
-													// (rlzi->inputpos 
-													// & 
-													// 7) 
-													// will 
-													// actually 
-													// be 
-													// discarded 
-													// - 
-													// that 
-													// is, 
-													// (rlzi->inputpos 
-													// & 
-													// 3) 
-													// should 
-													// give 
-													// the 
-													// same 
-													// result
+      int arg_ecx = (((((unsigned int) rlzi->inputpos & 7) << 8) | lastInputByte) >> realMode) & 7;	// top
+
+      //
+      // bit
+      // in
+      // (rlzi->inputpos
+      // &
+      // 7)
+      // will
+      // actually
+      // be
+      // discarded
+      // -
+      // that
+      // is,
+      // (rlzi->inputpos
+      // &
+      // 3)
+      // should
+      // give
+      // the
+      // same
+      // result
       int oldRangeSize = rlzi->rangeSize;
       unsigned int oldOutputpos = rlzi->outputpos;
       unsigned int inputVal = *(unsigned char *) ABS_INPUT_POS + 0x100;
 
       for (; !(inputVal & 0x10000); inputVal <<= 1)	// loop 8 times
-	write_bit ((unsigned char *) ((unsigned int) rlzi->literals + arg_ecx * 0xFF + (inputVal >> 8) - 1), (inputVal >> 7) & 1);	// last 
-																	// arg 
-																	// (now 
-																	// deleted) 
-																	// is 
-																	// actually 
-																	// ebx, 
-																	// but 
-																	// ebx 
-																	// is 
-																	// 3 
-																	// at 
-																	// this 
-																	// time
+	write_bit ((unsigned char *) ((unsigned int) rlzi->literals + arg_ecx * 0xFF + (inputVal >> 8) - 1), (inputVal >> 7) & 1);	// last
+      //
+      // arg
+      // (now
+      // deleted)
+      // is
+      // actually
+      // ebx,
+      // but
+      // ebx
+      // is
+      // 3
+      // at
+      // this
+      // time
 
       // these values are only ever used if realMode==7, and only in
       // find_match() function
@@ -227,12 +232,12 @@ rlzcompress (void *output, int inlen, void *input, unsigned char mode)
 
       i = 0;
       if ((searchBackPlus1 & 0xFFFFFFFE) > 0)	// if searchBackPlus1 has bits
-						// other than the first set...
-						// (that is, searchBackPlus1 != 
-						// 0 && searchBackPlus1 != 1)
+	// other than the first set...
+	// (that is, searchBackPlus1 !=
+	// 0 && searchBackPlus1 != 1)
       {				// this condition _should_ always be true, as
-				// min dictSearchBack is 1, and with +1, min
-				// value for searchBackPlus1 is 2
+	// min dictSearchBack is 1, and with +1, min
+	// value for searchBackPlus1 is 2
 	// find the position of the most significant "1"
 	for (i = 2; (searchBackPlus1 >> i) > 0; i++) ;
 	sbSignifBit = --i;	// put the bit position in ebp
@@ -251,11 +256,11 @@ rlzcompress (void *output, int inlen, void *input, unsigned char mode)
       int var_esi;
 
       do {			// write packed thing - perhaps a length of
-				// next number descriptor?
+	// next number descriptor?
 	var_esi = ((sbSignifBit & var_edi) > 0 ? 1 : 0);	// check if
-								// certain bit
-								// in ebp is
-								// set
+	// certain bit
+	// in ebp is
+	// set
 	write_bit ((unsigned char *) ((unsigned int)
 		&treeStore[var_ebx * 8] + sub_405B90_ret), var_esi);
 	var_edi >>= 1;
@@ -277,9 +282,10 @@ rlzcompress (void *output, int inlen, void *input, unsigned char mode)
 
     if (matchLen < bytesLeftMinus3)
       bytesLeftMinus3 = matchLen;
-    for (i = 0; i < bytesLeftMinus3; i++)	// goes thru all the bytes just 
-						// written and pushes some
-						// things into the dictionary
+    for (i = 0; i < bytesLeftMinus3; i++)	// goes thru all the bytes just
+      //
+      // written and pushes some
+      // things into the dictionary
     {
       unsigned int brHash = *(unsigned int *) (ABS_INPUT_POS + i) << 8;
 
@@ -293,13 +299,13 @@ rlzcompress (void *output, int inlen, void *input, unsigned char mode)
     rlzi->inputpos += matchLen;
     lastInputByte = *(unsigned char *) (ABS_INPUT_POS - 1);
     if (rlzi->outputpos == rlzi->inputlen)	// is the compressed output
-						// larger than the original
-						// stream?
+      // larger than the original
+      // stream?
       return -1;
   }
 
   write_match_len (0xFF, var_C);	// end marker or is this used for
-					// flushing data?
+  // flushing data?
 
   {				// originally sub_4058E0()
     i = (rlzi->writeLock ? 5 : 4);
@@ -322,7 +328,8 @@ write_match_len (unsigned char len, unsigned int arg_4)	// arg_4 -> something
 							// that keeps track of
 							// no. past blocks
 							// packed with
-							// find_match() (always 
+							// find_match() (always
+							//
 							// var_C from
 							// rlzcompress())
 {
@@ -343,8 +350,8 @@ write_match_len (unsigned char len, unsigned int arg_4)	// arg_4 -> something
   }
   i--;
   if (i > 0)			// --> identical to if(len != 0); this will
-				// only be true if len >= 1 (or len<0) - eg if
-				// data was packed
+    // only be true if len >= 1 (or len<0) - eg if
+    // data was packed
   {
     i--;
     unsigned char *ptr = rlzi->matchlens + ((arg_4 & 7) + i * 8) * 4;
@@ -409,8 +416,9 @@ write_special (unsigned char *unk0ptr, int num, int arg_edx)
 	  rlzi->rangeOffset += rangeTmp;
 	}
       }
-      arg_edx += 3;		// 2 (reverse previous subtraction), and +1 for 
-				// the above loop
+      arg_edx += 3;		// 2 (reverse previous subtraction), and +1 for
+      //
+      // the above loop
       rlzi->rangeSize = (long) rangeTmp;
       write_output ();
     }
@@ -431,9 +439,10 @@ flush_output (void)
   // 0x00000000FF??????
   if ((rlzi->rangeOffset >> 0x18) != 0xFF) {
     unsigned char byteOut = rlzi->nextOutputByte;	// starts off as 0,
-							// then becomes 3rd
-							// byte of
-							// rlzi->rangeOffset
+
+    // then becomes 3rd
+    // byte of
+    // rlzi->rangeOffset
 
     rlzi->nextOutputByte = (rlzi->rangeOffset >> 0x18) & 0xFF;
     do {
@@ -449,7 +458,8 @@ flush_output (void)
   }
   // loc_4058A4:
   rlzi->bytesToWrite++;
-  // rlzi->rangeOffset = (arg_CB0 << 8) & 0xFFFFFFFF; // make sure high 32 bits 
+  // rlzi->rangeOffset = (arg_CB0 << 8) & 0xFFFFFFFF; // make sure high 32 bits
+  //
   // are 0
   // rlzi->rangeSize = arg_CB8 << 8;
   rlzi->rangeOffset <<= 8;
@@ -469,7 +479,8 @@ write_output (void)
 // sub_405CE0: arg_0 = buf
 // this function determines how much data we can pack into a single byte
 // return of 1 = can't compress; don't think this can return 0xFF or higher
-// NEW: this function searches for distance-length, but doesn't actually encode 
+// NEW: this function searches for distance-length, but doesn't actually encode
+//
 // anything
 int
 find_match (int *searchBackUsed, unsigned char realMode)
@@ -486,22 +497,24 @@ find_match (int *searchBackUsed, unsigned char realMode)
   if (bytesLeft < 2)
     return 1;
   if (bytesLeft < 0xFF)		// if we have less bytes left than the maximum
-				// block size
+    // block size
     maxBlockSize = bytesLeft;
 
-  // realMode7Threshold = ((unsigned int)(rlzi->sgl_120C84 / rlzi->sgl_120C88 + 
+  // realMode7Threshold = ((unsigned int)(rlzi->sgl_120C84 / rlzi->sgl_120C88 +
+  //
   // 128.5) > 0x64); //dbl_41A3B8
   // realMode7Threshold = ((int)((unsigned int)(rlzi->sgl_120C84 /
   // rlzi->sgl_120C88 + 128.5)) > 0x64);
 #define ROUND(n) ((int)((n) + 0.5))
   realMode7Threshold = (ROUND (rlzi->sgl_120C84 / rlzi->sgl_120C88) > -28);
-  // the second line above generates output consistent with the good rlzpacker, 
+  // the second line above generates output consistent with the good rlzpacker,
+  //
   // but is this typecasting all correct?
 
   // check if we have a continuous copy of something
   searchBack = ABS_INPUT_POS - rlzi->lastSearchBack;	// byte_CBF only used
-							// by find_match(); is
-							// initially 0
+  // by find_match(); is
+  // initially 0
   if ((unsigned int) rlzi->lastSearchBack < rlzi->inputpos &&
       *(unsigned char *) (searchBack - 1) == *(unsigned char *) (ABS_INPUT_POS)
       && *(unsigned char *) (searchBack) ==
@@ -534,7 +547,8 @@ find_match (int *searchBackUsed, unsigned char realMode)
   // loc_405DB7:
   // if we have 2 bytes left in the buffer (remember, if there's 1 byte left,
   // this function would've
-  // already returned), we'll either by able to pack 1 or 2 bytes into a single 
+  // already returned), we'll either by able to pack 1 or 2 bytes into a single
+  //
   // byte
   // We can pack 2 bytes into a byte if repeat bytes (above) have been found.
   if (maxBlockSize < 3) {
@@ -543,16 +557,17 @@ find_match (int *searchBackUsed, unsigned char realMode)
   // loc_405DC9:
   // edx = ABS_INPUT_POS; - never actually read...
   unsigned int brHash = *(unsigned int *) ABS_INPUT_POS << 8;	// previously
-								// eax
+
+  // eax
 
   backRef = rlzi->window[(unsigned int) brHash % RLZI_WINDOW_SIZE];
   while (backRef != -1) {	// found a back reference
     if (backRef < (int) (rlzi->inputpos - RLZI_DICTIONARY_SIZE - 1))	// is
-									// the
-									// backreference 
-									// out
-									// of
-									// bounds?
+      // the
+      // backreference
+      // out
+      // of
+      // bounds?
       break;
 
     unsigned int matchAmt = matchLen + 1;
@@ -562,8 +577,8 @@ find_match (int *searchBackUsed, unsigned char realMode)
       if (*(unsigned char *) ((unsigned int) rlzi->input + backRef + i) !=
 	  *(unsigned char *) (ABS_INPUT_POS + i))
 	goto loc_405F97;	// jumps to end of while-loop (not valid -
-				// search for more references which could be
-				// valid)
+      // search for more references which could be
+      // valid)
     }
 
     // see how much more we can match
@@ -576,7 +591,7 @@ find_match (int *searchBackUsed, unsigned char realMode)
 	break;
     }
     i = rlzi->inputpos - backRef - 1;	// distance? penalising short matches
-					// which have a large distance??
+    // which have a large distance??
     if (matchAmt >= 3 && (matchAmt != 3 || (i <= 0x7F && (i <= 0x30 ||
 		    realMode != 5)))) {
       tempCompare = 0;
@@ -621,7 +636,7 @@ find_match (int *searchBackUsed, unsigned char realMode)
 
 	      // loc_405F60:
 	      for (i = 3; i < matchAmt; i++)	// loop max of 6 times due to
-						// code below
+		// code below
 	      {
 		if (i != 3 || (*searchBackUsed <= 0x7F &&
 			(*searchBackUsed <= 0x30 || realMode != 5))) {
@@ -656,9 +671,9 @@ find_match (int *searchBackUsed, unsigned char realMode)
 	    return maxBlockSize;
 	  // since maxBlockSize <= 0xFF, this implies maxBlockSize==0xFF
 	  if (bytesLeft <= 0xFF)	// if bytesLeft < 0xFF, then
-					// maxBlockSize < 0xFF will be true
-					// (enforced above), thus this line is
-					// essentially "if(bytesLeft == 0xFF)"
+	    // maxBlockSize < 0xFF will be true
+	    // (enforced above), thus this line is
+	    // essentially "if(bytesLeft == 0xFF)"
 	  {
 	    return 0xFD;	// or 0x100 - 3
 	  }

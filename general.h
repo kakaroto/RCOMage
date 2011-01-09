@@ -19,7 +19,6 @@
 #define APPXMLVER 1.10f
 #define APPVER 1.11f
 
-
 #ifndef TRUE
 #define TRUE (uint8_t)1
 #endif
@@ -56,19 +55,19 @@ extern uint8_t quietMode;
 // #define ALIGN_TO_4(n) (((n) + 3) >>2 <<2) // problem: upper 2 bits gets
 // wiped too
 
-
 #define UTF8_BOM  ((uint32_t) 0xBFBBEF)
 #define UTF16_BOM ((uint16_t) 0xFEFF)
 #define UTF32_BOM ((uint32_t) 0x0000FEFF)
 
 #define PACK_STRUCT(nam, struc) typedef struct struc __attribute__ ((packed)) nam
 
-uint32_t zlib_compress (void *src, uint32_t srcLen, void *dest, uint32_t destLen, int level,
-    int strat);
+uint32_t zlib_compress (void *src, uint32_t srcLen, void *dest,
+    uint32_t destLen, int level, int strat);
 int zlib_uncompress (void *dest, unsigned int destLen, const void *src,
     unsigned int srcLen);
 uint32_t zlib_unpacked_size (void *src, uint32_t srcLen);
-uint32_t rlz_compress (void *src, uint32_t srcLen, void *dest, uint32_t destLen, int mode);
+uint32_t rlz_compress (void *src, uint32_t srcLen, void *dest, uint32_t destLen,
+    int mode);
 uint8_t file_exists (char *fn);
 
 uint32_t filesize (const char *fn);

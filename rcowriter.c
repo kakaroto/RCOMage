@@ -30,9 +30,10 @@ typedef struct {
   // memory compression thing
   void *tables;
   uint32_t tablesSize;
-  uint32_t tablesBuffered;		// internal value used for buffering, following 
-				// define is the amount to increase the buffer
-				// by when necessary
+  uint32_t tablesBuffered;	// internal value used for buffering, following
+  //
+  // define is the amount to increase the buffer
+  // by when necessary
 #define RCO_WRITE_MEM_BUFFER 65536
   uint32_t memPos;
   uint32_t memOffset;		// should always be 0xA4
@@ -45,10 +46,11 @@ uint32_t rcowrite_ftell (rRCOFile_writehelper * rcoH);
 void rco_fwrite (rRCOFile_writehelper * rcoH, void *buffer, uint32_t len);
 void rcowrite_fseek (rRCOFile_writehelper * rcoH, uint32_t pos);
 
-uint32_t rco_write_resource (FILE * dest, rRCOEntry * entry, uint32_t destCompression,
-    writerco_options * opts, rRCOFile * rco);
-uint32_t rco_write_text_resource (rRCOFile_writehelper * rcoH, rRCOEntry * entry,
-    uint32_t destCompression, writerco_options * opts, uint32_t lang, uint8_t isLast);
+uint32_t rco_write_resource (FILE * dest, rRCOEntry * entry,
+    uint32_t destCompression, writerco_options * opts, rRCOFile * rco);
+uint32_t rco_write_text_resource (rRCOFile_writehelper * rcoH,
+    rRCOEntry * entry, uint32_t destCompression, writerco_options * opts,
+    uint32_t lang, uint8_t isLast);
 
 void rco_write_fix_refs (rRCOEntry * parent, rRCOFile_writehelper * rcoH,
     rRCOFile * rco, const int *lenArray, const int lenNum, uint8_t isObj);
@@ -91,8 +93,8 @@ write_rco (rRCOFile * rco, char *fn, writerco_options opts)
       (opts.packHeader == RCO_DATA_COMPRESSION_RLZ ? 0x95 : opts.packHeader ==
       RCO_DATA_COMPRESSION_ZLIB ? 0x90 : 0x71);
   if (rco->verId) {		// we won't actually use specified value,
-				// rather, we'll require using the minimum
-				// version from above
+    // rather, we'll require using the minimum
+    // version from above
     if (rco->verId > header.version)
       header.version = rco->verId;
   }
@@ -248,7 +250,7 @@ write_rco (rRCOFile * rco, char *fn, writerco_options opts)
 
   {				// write hashtable data
 
-    /* { // special case for text hashes if(rco->numPtrText) { header.pTextPtrs 
+    /* { // special case for text hashes if(rco->numPtrText) { header.pTextPtrs
      * = rcowrite_ftell(&rcoH); for(i=0; i<rco->numPtrText; i++) { uint32_t
      * writePtr = 0; if(rco->ptrText[i].textEntry && rco->ptrText[i].index)
      * writePtr = rco->ptrText[i].textEntry->offset + sizeof(RCOEntry) +
@@ -295,7 +297,7 @@ write_rco (rRCOFile * rco, char *fn, writerco_options opts)
       header.lAnimPtrs =
 	  write_hash_table (&rcoH, rco->tblAnim, rco) * sizeof (uint32_t);
     }
-    /* 
+    /*
      * #define RCO_WRITERCO_WRITE_PTR_SECT(pd, pl, hp) { \ if(pl) { \ hp =
      * rcowrite_ftell(&rcoH); \ for(i=0; i<pl; i++) { \ if(pd[i]) \
      * rco_fwrite(&rcoH, &(((rRCOEntry*)(pd[i]))->offset), sizeof(uint32_t)); \
@@ -313,7 +315,7 @@ write_rco (rRCOFile * rco, char *fn, writerco_options opts)
   }
 
   {				// write label/event data (and text if
-				// applicable)
+    // applicable)
 
     // write text (note, old behaviour - newer RCOs have text written in a
     // different location)
@@ -336,12 +338,12 @@ write_rco (rRCOFile * rco, char *fn, writerco_options opts)
     if (rco->eventsLen)
       rco_fwrite (&rcoH, rco->events, rco->eventsLen);
     else if (rco->tblObj || rco->tblAnim) {	// weird case: if there's
-						// object entries, there will
-						// be 4 bytes for events; I'll
-						// assume this covers anim as
-						// well (although there isn't
-						// an RCO with anim that
-						// doesn't have objects)
+      // object entries, there will
+      // be 4 bytes for events; I'll
+      // assume this covers anim as
+      // well (although there isn't
+      // an RCO with anim that
+      // doesn't have objects)
       uint32_t zero = 0;
 
       rco_fwrite (&rcoH, &zero, sizeof (zero));
@@ -422,19 +424,15 @@ write_rco (rRCOFile * rco, char *fn, writerco_options opts)
    * uint32_t packedSize = rco_write_resource(&rcoH,
    * &(rco->tblImage->subentries[i]), RCO_DATA_COMPRESSION_NONE); // TOxDO:
    * change this // TOxDO: update packed size value uint32_t curFpos =
-   * rcowrite_ftell(rcoH.fp);
-   * 
-   * totalPackedLen += (packedSize % 4 ? (packedSize/4)*4+4 : packedSize); }
-   * header.lImgData = totalPackedLen; }
-   * 
+   * rcowrite_ftell(rcoH.fp); totalPackedLen += (packedSize % 4 ?
+   * (packedSize/4)*4+4 : packedSize); } header.lImgData = totalPackedLen; }
    * totalPackedLen = 0; if(rco->tblSound) { header.pSoundData =
    * rcowrite_ftell(&rcoH); header.lSoundData = rcoH.sizeSound; for(i=0;
    * i<rco->tblSound->numSubentries; i++) { totalPackedLen +=
    * rco_write_resource(&rcoH, &(rco->tblSound->subentries[i]),
    * RCO_DATA_COMPRESSION_NONE); if(totalPackedLen %4) totalPackedLen +=
-   * 4-(totalPackedLen%4); } header.lSoundData = totalPackedLen; }
-   * 
-   * // TOxDO: write model resources } */
+   * 4-(totalPackedLen%4); } header.lSoundData = totalPackedLen; } // TOxDO:
+   * write model resources } */
 
   if ((rco->tblImage && rco->tblImage->numSubentries)
       || (rco->tblSound && rco->tblSound->numSubentries)
@@ -499,12 +497,13 @@ write_rco (rRCOFile * rco, char *fn, writerco_options opts)
   return TRUE;
 }
 
-// returns next entry offset (like the length, but the last entry returns zero) 
+// returns next entry offset (like the length, but the last entry returns zero)
+//
 // - doesn't really have much meaning - it's primarily used for internal
 // purposes
 uint32_t
-write_entry (rRCOFile_writehelper * rcoH, rRCOEntry * entry, uint32_t parentOffset,
-    uint32_t prevOffset, uint8_t isLastSubentry)
+write_entry (rRCOFile_writehelper * rcoH, rRCOEntry * entry,
+    uint32_t parentOffset, uint32_t prevOffset, uint8_t isLastSubentry)
 {
   uint32_t fPos = rcowrite_ftell (rcoH);
 
@@ -610,17 +609,19 @@ write_entry (rRCOFile_writehelper * rcoH, rRCOEntry * entry, uint32_t parentOffs
 	    rti.offset = RCO_NULL_PTR;
 	  else if (rti.length) {
 	    if (rcoH->tables)	// compressing - we need to make the offset
-				// relative to the section of text data
+	      // relative to the section of text data
 	      rti.offset = rcoH->sizeText - entryTextOffset;
 	    else
 	      rti.offset = rcoH->sizeText;
-	  } else		// TODO: experimental (it seems that Sony likes 
-				// sticking in a weird pointer for a blank text 
-				// entry)
+	  } else		// TODO: experimental (it seems that Sony likes
+	    //
+	    // sticking in a weird pointer for a blank text
+	    // entry)
 	    rti.offset = entryTextOffset - 1;
 
-	  rcoH->sizeText += rti.length;	// doesn't have trailing null, so no +1 
-					// needed
+	  rcoH->sizeText += rti.length;	// doesn't have trailing null, so no +1
+	  //
+	  // needed
 	  // align to 4 byte boundary
 	  rcoH->sizeText = ALIGN_TO_4 (rcoH->sizeText);
 
@@ -709,7 +710,8 @@ write_entry (rRCOFile_writehelper * rcoH, rRCOEntry * entry, uint32_t parentOffs
 	  uint32_t stuffToWrite[] = { 0, RCO_NULL_PTR };
 	  uint32_t i;
 
-	  // actually, the following is unnecessary, but we'll keep it here for 
+	  // actually, the following is unnecessary, but we'll keep it here for
+	  //
 	  // reference sake
 	  if (entry->rco->eSwap) {
 	    stuffToWrite[0] = ENDIAN_SWAP (stuffToWrite[0]);
@@ -840,7 +842,8 @@ rcowrite_fseek (rRCOFile_writehelper * rcoH, uint32_t pos)
 }
 
 // returns the length of the packed data
-// TBH, I really can't be stuffed writing a buffered copy/compress/decompressor 
+// TBH, I really can't be stuffed writing a buffered copy/compress/decompressor
+//
 // (and anyway, it may not work with future compression routines, so meh)
 uint32_t
 rco_write_resource (FILE * dest, rRCOEntry * entry, uint32_t destCompression,
@@ -905,27 +908,27 @@ rco_write_resource (FILE * dest, rRCOEntry * entry, uint32_t destCompression,
   filewrite (dest, bufferOut, packedSize);
   free (bufferOut);
 
-  /* 
+  /*
    * char buffer[65536], outBuffer[65536]; uint32_t len=entry->srcLen; z_stream
    * out; if(destStream == RCO_DATA_COMPRESSION_ZLIB) { ZLIB_INIT_DEFLATE(out,
    * 9, Z_DEFAULT_STRATEGY); out.next_in = buffer; out.avail_in = 65536;
    * out.next_out = outBuffer; out.avail_out = 65536; }
-   * 
+   *
    * // copy with buffer while(len) { uint32_t readAmt = (len < 65536 ? len :
    * 65536); if(!fileread(src, &buffer, readAmt)) { fclose(src); return FALSE;
    * }
-   * 
+   *
    * if(destCompression == RCO_DATA_COMPRESSION_NONE) filewrite(dest, &buffer,
    * readAmt); else if(destCompression == RCO_DATA_COMPRESSION_ZLIB) {
-   * 
+   *
    * }
-   * 
+   *
    * len -= readAmt; }
-   * 
+   *
    * // TOxDO: also don't forget to check lenUnpacked
-   * 
+   *
    * fclose(src);
-   * 
+   *
    * if(destStream == RCO_DATA_COMPRESSION_ZLIB) deflateEnd(&out); */
 
   // 4byte alignment
@@ -940,7 +943,8 @@ rco_write_resource (FILE * dest, rRCOEntry * entry, uint32_t destCompression,
 
 uint32_t
 rco_write_text_resource (rRCOFile_writehelper * rcoH, rRCOEntry * entry,
-    uint32_t destCompression, writerco_options * opts, uint32_t lang, uint8_t isLast)
+    uint32_t destCompression, writerco_options * opts, uint32_t lang,
+    uint8_t isLast)
 {
 
   uint32_t len = 0;
@@ -1142,7 +1146,8 @@ write_hash_table (rRCOFile_writehelper * rcoH, rRCOEntry * entry,
   if (entry->id == RCO_TABLE_OBJ)
     num = count_all_subentries (entry);
   // if(!rco->ps3)
-  // interestingly, it seems that some PS3 RCOs do not round to an upper prime, 
+  // interestingly, it seems that some PS3 RCOs do not round to an upper prime,
+  //
   // but most do
   num = find_larger_prime (num);
 
@@ -1200,8 +1205,8 @@ write_text_hash_table (rRCOFile_writehelper * rcoH, rRCOEntry * entry,
 }
 
 void
-do_hashing (rRCOEntry * entry, rRCOFile * rco, uint8_t recurse, uint32_t * hashTable,
-    uint32_t hashTableSize)
+do_hashing (rRCOEntry * entry, rRCOFile * rco, uint8_t recurse,
+    uint32_t * hashTable, uint32_t hashTableSize)
 {
   if (entry->labelOffset != RCO_NULL_PTR) {
     uint32_t *hashPtr =

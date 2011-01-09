@@ -61,7 +61,7 @@ enum {
   VID_OPERATOR_EQUAL = 0xe,
   VID_OPERATOR_NOT_EQUAL = 0xf,
   VID_OPERATOR_CASE_LABEL = 0x10,	// same as VID_OPERATOR_EQUAL, just
-					// used in switch statements
+  // used in switch statements
 
   VID_OPERATOR_LT = 0x12,
   VID_OPERATOR_LTE = 0x13,
@@ -88,9 +88,9 @@ enum {
   VID_PROPERTY = 0x2f,
   VID_METHOD = 0x30,
   VID_UNK_31 = 0x31,		// appears to be an object set; pops last two
-				// items off the stack
+  // items off the stack
   VID_UNSET = 0x32,		// guess; looks like above, but only with one
-				// item
+  // item
 
   VID_ARRAY_INDEX = 0x34,
 
@@ -98,8 +98,8 @@ enum {
 
   VID_ARRAY_ELEM = 0x38,	// push something into array constant
   VID_SECT_START = 0x39,	// jump statement; can indicate end of
-				// function, end of else/for, or return to
-				// beginning of loop
+  // function, end of else/for, or return to
+  // beginning of loop
   VID_JUMP_TRUE = 0x3a,		// jump if previous value is true
   VID_JUMP_FALSE = 0x3b,
   VID_CALL_FUNC = 0x3c,
@@ -712,9 +712,9 @@ VsmxEncode (FILE * in)
 #define IS_WHITESPACE(x) (x == L'\t' || x == L' ' || x == L'\n' || x == L'\r')
     while (*op && IS_WHITESPACE (*op))
       op++;
-    /* code is BAD - can remove stuff if in a string! // don't forget to remove 
-     * comments! tmp = op; while(*tmp) { if(*tmp == L';') { *tmp = L'\0';
-     * break; } tmp++; } */
+    /* code is BAD - can remove stuff if in a string! // don't forget to remove
+     * comments! tmp = op; while(*tmp) { if(*tmp == L';') { *tmp = L'\0'; break;
+     * * } tmp++; } */
     lineLen = wcslen (op);
     while (lineLen && IS_WHITESPACE (op[lineLen - 1]))
       lineLen--;
@@ -1258,7 +1258,7 @@ VsmxDecompile (VsmxMem * in, FILE * out)
       case VID_UNK_31:
 	CHECK_INDEX (in->numProp, "prop");
 	if (stack && stack->depth >= 1) {	// TODO: this is really not
-						// correct
+	  // correct
 	  VsmxDecompileStack *obj, *val;
 
 	  val = VsmxDecompileStackPop (&stack);
@@ -1666,9 +1666,10 @@ VsmxDecompile (VsmxMem * in, FILE * out)
 
 	  } else {
 	    // function start
-	    SWPRINTF (op, 50, L"%%ls { /* ends at %d */\n", in->code[i].val.u32);	// wcscpy(op, 
-											// L"%s 
-											// {\n");
+	    SWPRINTF (op, 50, L"%%ls { /* ends at %d */\n", in->code[i].val.u32);	// wcscpy(op,
+	    //
+	    // L"%s
+	    // {\n");
 	  }
 	}
       case VID_JUMP_FALSE:
@@ -1682,11 +1683,12 @@ VsmxDecompile (VsmxMem * in, FILE * out)
 	  if (in->code[in->code[i].val.u32 - 1].id == VID_SECT_START &&
 	      in->code[in->code[i].val.u32 - 1].val.u32 == stmtStart) {
 	    // while loop
-	    SWPRINTF (op, 50, L"while( %%s ) { /* ends at %d */\n", in->code[i].val.u32);	// wcscpy(op, 
-												// L"while( 
-												// %s 
-												// ) 
-												// {\n");
+	    SWPRINTF (op, 50, L"while( %%s ) { /* ends at %d */\n", in->code[i].val.u32);	// wcscpy(op,
+	    //
+	    // L"while(
+	    // %s
+	    // )
+	    // {\n");
 	  } else {
 	    // if statement
 	    if (stack->depth > endStmtConcat - 1) {
@@ -1710,11 +1712,12 @@ VsmxDecompile (VsmxMem * in, FILE * out)
 	      VsmxDecompMarkStackPush (&mStack, &mItem);
 	      break;
 	    } else {
-	      SWPRINTF (op, 50, L"if( %%s ) { /* ends at %d */\n", in->code[i].val.u32);	// wcscpy(op, 
-												// L"if( 
-												// %s 
-												// ) 
-												// {\n");
+	      SWPRINTF (op, 50, L"if( %%s ) { /* ends at %d */\n", in->code[i].val.u32);	// wcscpy(op,
+	      //
+	      // L"if(
+	      // %s
+	      // )
+	      // {\n");
 	    }
 	  }
 	}

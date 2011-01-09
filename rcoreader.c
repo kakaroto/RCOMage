@@ -22,7 +22,7 @@
 typedef struct {
   char *fName;
   uint32_t fSize;
-  uint32_t fSizeExpanded;		// file size with decompressed header
+  uint32_t fSizeExpanded;	// file size with decompressed header
 
   void *tables;			// decompressed tables
   uint32_t tablesSize;
@@ -107,7 +107,7 @@ read_rco (char *fn)
   }
 
   rco->umdFlag = header.compression & 0xF;	// actually, I'm usure about
-						// this, but meh
+  // this, but meh
   rco->headerCompression = header.compression >> 4;
   rco->verId = header.version;
 
@@ -247,8 +247,8 @@ read_rco (char *fn)
 	return NULL;
 
       default:			// this won't actually ever be executed due to
-				// the new compression checking code above...
-				// :/
+	// the new compression checking code above...
+	// :/
 	error
 	    ("[header] Unknown compression method specified (0x%x) - can't continue.",
 	    rco->headerCompression);
@@ -258,7 +258,7 @@ read_rco (char *fn)
     // decompress text data
     if (header.pTextData != RCO_NULL_PTR && header.lTextData) {
       fseek (rcoH.fp, header.pTextData, SEEK_SET);	// TODO: check offset
-							// first!
+      // first!
       TextComprInfo tci;
 
       info ("TextData Compression info:");
@@ -301,14 +301,15 @@ read_rco (char *fn)
 	}
 	free (readBuf);
 
-	rcoH.fSizeExpanded += ALIGN_TO_4 (tci.unpackedLen) - ALIGN_TO_4 (tci.packedLen);	// TODO: 
-												// need 
-												// to 
-												// check 
-												// if 
-												// this 
-												// is 
-												// correct
+	rcoH.fSizeExpanded += ALIGN_TO_4 (tci.unpackedLen) - ALIGN_TO_4 (tci.packedLen);	// TODO:
+	//
+	// need
+	// to
+	// check
+	// if
+	// this
+	// is
+	// correct
 
 	if (!tci.nextOffset)
 	  break;
@@ -382,7 +383,7 @@ read_rco (char *fn)
 					rco_fread(&rcoH, dp, hl); \
 				} \
 			}
-    /* 
+    /*
      * READ_RCO_READ_PTR_SEGMENT(header.pTextPtrs, header.lTextPtrs,
      * rcoH.ptrsText, rcoH.numTextPtrs, "text");
      * READ_RCO_READ_PTR_SEGMENT(header.pImgPtrs, header.lImgPtrs,
@@ -588,7 +589,7 @@ read_rco (char *fn)
 	warning ("[header] Model resource pointer/length is invalid.");
     }
 
-    /* 
+    /*
      * rco->pDataText = header.pTextData; rco->lDataText = header.lTextData;
      * if(!rco->lDataText) rco->pDataText = 0; rco->pDataImg = header.pImgData;
      * rco->lDataImg = header.lImgData; if(!rco->lDataImg) rco->pDataImg = 0;
@@ -596,7 +597,7 @@ read_rco (char *fn)
      * if(!rco->lDataSound) rco->pDataSound = 0; rco->pDataModel =
      * header.pModelData; rco->lDataModel = header.lModelData;
      * if(!rco->lDataModel) rco->pDataModel = 0;
-     * 
+     *
      * rco->attachSource = (char*)malloc(strlen(fn) +1);
      * strcpy(rco->attachSource, fn); */
   }
@@ -804,7 +805,8 @@ read_entry (rRCOFile_readhelper * rcoH, rRCOFile * rco, rRCOEntry * data,
 	    compression &= 0xFF;
 	    if (compression == RCO_DATA_COMPRESSION_NONE) {
 	      // assume that this doesn't include the packed length value
-	      // ...but we'll still at least _try_ to see if this isn't a short 
+	      // ...but we'll still at least _try_ to see if this isn't a short
+	      //
 	      // entry (not guaranteed to succeed, especially for the last
 	      // image entry)
 	      if (!re.nextEntryOffset ||
@@ -842,10 +844,10 @@ read_entry (rRCOFile_readhelper * rcoH, rRCOFile * rco, rRCOEntry * data,
 	    return;
 	  }
 
-	  /* 
+	  /*
 	   * // dirty hack for reading PS3 stuff if(rco->ps3 && extraSize ==
 	   * rimeSize) extraSize -= sizeof(uint32_t);
-	   * 
+	   *
 	   * if(!rco_fread(rcoH, (uint8_t*)(&rie) +sizeof(uint32_t), extraSize -
 	   * sizeof(uint32_t))) { error("[entry (0x%x)] Unable to read entry
 	   * extra data - file exhausted.", data->offset); return; }
@@ -1101,18 +1103,22 @@ read_entry (rRCOFile_readhelper * rcoH, rRCOFile * rco, rRCOEntry * data,
 
     // our ugly hack to get around borked update_plugin.rco when decompressed
     // with Resurssiklunssi
-    // the issue is that the image isn't compressed by default, so uses a short 
+    // the issue is that the image isn't compressed by default, so uses a short
+    //
     // image entry (ie, doesn't include decompressed size), however
-    // Resurssiklunssi will compress it but won't add in this decompressed size 
+    // Resurssiklunssi will compress it but won't add in this decompressed size
+    //
     // since there is no room for it
     // rcomage expects a decompressed size so will assume it exists (no way to
     // tell if it's not there) but this will cause an alignment error for the
-    // parent.  The only way to detect this is, thus, trap this alignment error 
+    // parent.  The only way to detect this is, thus, trap this alignment error
+    //
     // and check the child entry
     // still, we are left without a decompressed size, thus we have to figure
     // out something for this
 
-    // we'll do this by seeing if the misalignment is -4 and the previous entry 
+    // we'll do this by seeing if the misalignment is -4 and the previous entry
+    //
     // is a compressed image/model; if there are child entries, we'll check
     // this instead of the previous entry
     // obviously this isn't guaranteed to work in 100% of cases, but will get
@@ -1160,7 +1166,8 @@ fix_refs (rRCOFile * rco, rRCOEntry * entry, const int *lenArray,
 {
   uint32_t i, i2;
 
-  // only fix refs if type is known, and not the main object(0x800)/anim(0x900) 
+  // only fix refs if type is known, and not the main object(0x800)/anim(0x900)
+  //
   // table
   if (entry->type != 0 && entry->type <= (int) lenNum &&
       lenArray[entry->type] != -1) {
@@ -1168,7 +1175,8 @@ fix_refs (rRCOFile * rco, rRCOEntry * entry, const int *lenArray,
     uint32_t destSize = lenArray[entry->type] * sizeof (uint32_t);
 
     if (isObj) {
-      for (i = 0, i2 = 0; i < (uint32_t) RCO_OBJ_EXTRA_LEN[entry->type]; i++, i2++)
+      for (i = 0, i2 = 0; i < (uint32_t) RCO_OBJ_EXTRA_LEN[entry->type];
+	  i++, i2++)
 	if (RCO_OBJ_IS_REF (entry->type, i2)) {
 	  destSize -= sizeof (uint32_t) * 2;	// size of ref source
 	  destSize += sizeof (rRCORef);
@@ -1177,7 +1185,8 @@ fix_refs (rRCOFile * rco, rRCOEntry * entry, const int *lenArray,
     } else {
       /* if(RCO_ANIM_EXTRA_REFS[entry->type]) { destSize -= sizeof(uint32_t)*2;
        * // size of ref source destSize += sizeof(rRCORef); } */
-      for (i = 0, i2 = 0; i < (uint32_t) RCO_ANIM_EXTRA_LEN[entry->type]; i++, i2++)
+      for (i = 0, i2 = 0; i < (uint32_t) RCO_ANIM_EXTRA_LEN[entry->type];
+	  i++, i2++)
 	if (RCO_ANIM_IS_REF (entry->type, i2)) {
 	  destSize -= sizeof (uint32_t) * 2;	// size of ref source
 	  destSize += sizeof (rRCORef);
@@ -1244,7 +1253,8 @@ fix_refs (rRCOFile * rco, rRCOEntry * entry, const int *lenArray,
 	i++;
 	destPtr += sizeof (rRCORef);
       } else {
-	*(uint32_t *) destPtr = *(uint32_t *) ((uint8_t *) entry->extra + i * 4);
+	*(uint32_t *) destPtr =
+	    *(uint32_t *) ((uint8_t *) entry->extra + i * 4);
 	destPtr += sizeof (uint32_t);
       }
     }

@@ -18,8 +18,8 @@
 #include "7z/7z.h"
 
 uint32_t
-zlib_compress (void *src, uint32_t srcLen, void *dest, uint32_t destLen, int level,
-    int strat)
+zlib_compress (void *src, uint32_t srcLen, void *dest, uint32_t destLen,
+    int level, int strat)
 {
   if (strat == Z_USE_7Z) {
     // compress with 7z
@@ -156,11 +156,13 @@ zlib_unpacked_size (void *src, uint32_t srcLen)
 }
 
 uint32_t
-rlz_compress (void *src, uint32_t srcLen, void *dest, uint32_t destLen, int mode)
+rlz_compress (void *src, uint32_t srcLen, void *dest, uint32_t destLen,
+    int mode)
 {
   if (mode == -1) {
     // theme creator compatible mode
-    // we'll be just as bad as the theme creator and run _4_ compression passes 
+    // we'll be just as bad as the theme creator and run _4_ compression passes
+    //
     // >_>
 
     int size5, size6, size7;
@@ -175,7 +177,7 @@ rlz_compress (void *src, uint32_t srcLen, void *dest, uint32_t destLen, int mode
     if (size7 != -1 && (size7 < size6 || size6 != -1)
 	&& (size7 < size5 || size5 != -1))
       return size7;		// okay, we're _slightly_ more optimised than
-				// the theme creator :P
+    // the theme creator :P
     if (size6 != -1 && (size6 < size5 || size5 != -1))
       return rlzcompress (dest, srcLen, src, 6);
     if (size5 != -1)
@@ -243,7 +245,7 @@ uint8_t
 is_prime (uint32_t in)
 {
   if (in < 12) {		// need this buffer as "lim" (below) may
-				// underflow
+    // underflow
     return (in <= 3 || in == 5 || in == 7 || in == 11);
   }
   // filter out half the results by checking if the number is even

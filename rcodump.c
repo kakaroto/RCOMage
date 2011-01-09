@@ -319,36 +319,37 @@ dump_resources (char *labels, rRCOEntry * parent, const RcoTableMap extMap,
 
       // *new* fix entry here as well
       strcpy (entry->srcFile, fullOutName);
-      entry->srcLenUnpacked = filesize (fullOutName);	// get around issues of 
-							// conversions changing 
-							// filesize :P (dirty,
-							// but works!)
+      entry->srcLenUnpacked = filesize (fullOutName);	// get around issues of
+      //
+      // conversions changing
+      // filesize :P (dirty,
+      // but works!)
     }
 
-    /* 
+    /*
      * for(j=0; j<numResToWrite; j++) { if(entry->id == RCO_TABLE_SOUND) { //
      * do something dirty - hack the srcFile here... outName[len+1] = '\0';
      * strcpy(soundSetSrc, fullOutName); strcpy(soundSetSrc +
      * strlen(soundSetSrc), "ch*.vag");
-     * 
+     *
      * sprintf(outName + len +1, "ch%d.", j); len = strlen(outName) -1; }
      * strcpy(outName + len +1, ext);
-     * 
+     *
      * // trick dump_resource() into doing what we want it to by fiddling with
      * stuff uint32_t origAddr = entry->srcAddr, origLen = entry->srcLen,
      * origLenUnpacked = entry->srcLenUnpacked; if(entry->id ==
      * RCO_TABLE_SOUND) { entry->srcLen = entry->srcLenUnpacked =
      * ((rRCOSoundEntry*)entry->extra)->channelData[j*2]; entry->srcAddr +=
      * ((rRCOSoundEntry*)entry->extra)->channelData[j*2+1]; }
-     * 
+     *
      * if((fp = fopen(fullOutName, "wb"))) { if(!dump_resource(fp, entry))
      * warning("Unable to dump resource '%s'.", labels + entry->labelOffset);
      * fclose(fp); } else warning("Unable to write to file '%s'.",
      * fullOutName);
-     * 
+     *
      * entry->srcAddr = origAddr; entry->srcLen = origLen;
      * entry->srcLenUnpacked = origLenUnpacked;
-     * 
+     *
      * // *new* fix entry here as well if(entry->id != RCO_TABLE_SOUND)
      * strcpy(entry->srcFile, fullOutName); } */
     entry->srcAddr = 0;
@@ -511,19 +512,19 @@ dump_text_resources (char *labels, rRCOEntry * parent, uint8_t writeHeader,
 	char *bufOut = buf;
 	uint32_t outBufLen = 4096;
 
-	/* { // feed in the BOM (is it really necessary though?) uint32_t number;
-	 * char* unicodePtr; if(textEntry->format == RCO_TEXT_FMT_UTF32) {
-	 * uint32_t bom = UTF32_BOM; if(parent->rco->eSwap) bom =
-	 * ENDIAN_SWAP(bom); number = sizeof(bom); unicodePtr = (char*)&bom;
-	 * iconv(ic, (const char**)(&unicodePtr), (size_t*)(&number), &bufOut,
-	 * (size_t*)(&outBufLen)); } else if(textEntry->format ==
-	 * RCO_TEXT_FMT_UTF8) { uint32_t bom = UTF8_BOM; number = 3; unicodePtr = 
-	 * (char*)&bom; iconv(ic, (const char**)(&unicodePtr),
-	 * (size_t*)(&number), &bufOut, (size_t*)(&outBufLen)); } else { uint16_t 
-	 * bom = UTF16_BOM; if(parent->rco->eSwap) bom = ENDIAN_SWAP(bom);
-	 * number = sizeof(bom); unicodePtr = (char*)&bom; iconv(ic, (const
+	/* { // feed in the BOM (is it really necessary though?) uint32_t
+	 * number; char* unicodePtr; if(textEntry->format ==
+	 * RCO_TEXT_FMT_UTF32) { uint32_t bom = UTF32_BOM;
+	 * if(parent->rco->eSwap) bom = ENDIAN_SWAP(bom); number = sizeof(bom);
+	 * unicodePtr = (char*)&bom; iconv(ic, (const char**)(&unicodePtr),
+	 * (size_t*)(&number), &bufOut, (size_t*)(&outBufLen)); } else
+	 * if(textEntry->format == RCO_TEXT_FMT_UTF8) { uint32_t bom = UTF8_BOM;
+	 * * number = 3; unicodePtr = (char*)&bom; iconv(ic, (const
 	 * char**)(&unicodePtr), (size_t*)(&number), &bufOut,
-	 * (size_t*)(&outBufLen)); } } */
+	 * (size_t*)(&outBufLen)); } else { uint16_t bom = UTF16_BOM;
+	 * if(parent->rco->eSwap) bom = ENDIAN_SWAP(bom); number = sizeof(bom);
+	 * unicodePtr = (char*)&bom; iconv(ic, (const char**)(&unicodePtr),
+	 * (size_t*)(&number), &bufOut, (size_t*)(&outBufLen)); } } */
 	uint32_t nullsStripped = 0;
 
 	while (dataLen) {
@@ -546,7 +547,7 @@ dump_text_resources (char *labels, rRCOEntry * parent, uint8_t writeHeader,
 	  }
 	  outBufLen = 4096;
 	  bufOut = buf;
-	  /* 
+	  /*
 	   * filewrite(fp, buf, bufOut-buf); outBufLen = 4096; bufOut = buf; */
 	}
 	if (nullsStripped)
@@ -701,23 +702,24 @@ exec_gimconv (char *cmd, char *src, char *dest, char *extFlags)
   }
   // gimconv is screwy and sometimes prepends a '/' to our destination file
   // so we do our feeble attempt to determine if it is a relative path
-  if (dest[0] == '\\' || dest[0] == '/' || dest[0] == '.' || dest[1] == ':')	// should 
-										// handle 
-										// "\file", 
-										// "\\network\blah" 
-										// and 
-										// "C:\file" 
-										// notations; 
-										// gimconv 
-										// seems 
-										// to 
-										// also 
-										// escape 
-										// if 
-										// first 
-										// char 
-										// == 
-										// '.'
+  if (dest[0] == '\\' || dest[0] == '/' || dest[0] == '.' || dest[1] == ':')	// should
+    //
+    // handle
+    // "\file",
+    // "\\network\blah"
+    // and
+    // "C:\file"
+    // notations;
+    // gimconv
+    // seems
+    // to
+    // also
+    // escape
+    // if
+    // first
+    // char
+    // ==
+    // '.'
     sprintf (gimconvCmd + strlen (gimconvCmd), " \"%s\" -o \"%s\"", src, dest);
   else
     sprintf (gimconvCmd + strlen (gimconvCmd), " \"%s\" -o \"./%s\"", src,

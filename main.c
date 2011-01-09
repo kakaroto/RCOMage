@@ -260,19 +260,19 @@ main_help ()
      * replacing sound resources.\n" "\n" "\nOptions:\n" " --lang <lang>
      * Language of text to replace. [English]\n" " See '%s help extract' for
      * valid values.\n" " --channel <n> Replace sound channel <n>. [1]\n" "
-     * --format <fmt> Format of imported resource.  Only applies to image,\n" " 
-     * sound and model resources.  You can use a format ID, or\n" " the
+     * --format <fmt> Format of imported resource.  Only applies to image,\n" "
+     * * sound and model resources.  You can use a format ID, or\n" " the
      * following:\n"); // TODO: printf( " --pack <val> How to compress this
      * resource.\n" #ifdef DISABLE_RLZ " Valid values are 'none' and 'zlib'.\n"
      * #else " Valid values are 'none', 'zlib' and 'rlz'.\n" #endif " Only
      * applies to images and models.  By default, will use\n" " 'zlib' unless
      * format is PNG/JPG/TIF/GIF where 'none' will\n" " be used.\n");
      * PRINT_PACK_OPTS; return 0; } */
-    /* 
+    /*
      * else if(!strcasecmp(app_argv[2], "list")) { printf("Syntax: %s list
-     * <rcofile> [options]\n", app_argv[0]); printf(" List resources in an easy 
+     * <rcofile> [options]\n", app_argv[0]); printf(" List resources in an easy
      * to parse format.\n"); printf("\n"); printf("\nOptions:\n"); printf("
-     * --type <type> Only list resources of a certain type.\n"); printf(" Types 
+     * --type <type> Only list resources of a certain type.\n"); printf(" Types
      * can be 'image', 'sound', 'model', \n"); printf(" --no-recurse Don't
      * write UCS BOM.\n"); printf(" The following option only applies for
      * extracting sound resources.\n"); printf(" --channel <n> Extract sound
@@ -348,7 +348,7 @@ main_help ()
   printf
       ("    --ini-dir      Specify directory containing Rcomage INI files.\n");
 
-  /* 
+  /*
    * printf("\n"); printf("\nGeneral options:\n"); printf("\n"); printf("
    * --pack \n"); */
 
@@ -411,15 +411,15 @@ main_dump (void)
     else
       MAIN_INV_CMD_SYNTAX}
     if (!sRcoFile || !sXmlFile)
-      MAIN_INV_CMD_SYNTAX if (gimconvOpts.ext && strlen (gimconvOpts.ext) > 5) {
-	gimconvOpts.ext[5] = '\0';	// prevent buffer overflow
-	if (gimconvOpts.cmd && strlen (gimconvOpts.cmd) > 255) {
-	  gimconvOpts.cmd[255] = '\0';	// prevent buffer overflow
-	}
-	if (gimconvOpts.extFlags && strlen (gimconvOpts.extFlags) > 512) {
-	  gimconvOpts.extFlags[512] = '\0';	// prevent buffer overflow
-	}
+    MAIN_INV_CMD_SYNTAX if (gimconvOpts.ext && strlen (gimconvOpts.ext) > 5) {
+      gimconvOpts.ext[5] = '\0';	// prevent buffer overflow
+      if (gimconvOpts.cmd && strlen (gimconvOpts.cmd) > 255) {
+	gimconvOpts.cmd[255] = '\0';	// prevent buffer overflow
       }
+      if (gimconvOpts.extFlags && strlen (gimconvOpts.extFlags) > 512) {
+	gimconvOpts.extFlags[512] = '\0';	// prevent buffer overflow
+      }
+    }
 
     rRCOFile *rco = read_rco (sRcoFile);
 
@@ -575,9 +575,7 @@ main_dump (void)
 
       if (entry) {
 	/* if(entry->id == RCO_TABLE_SOUND && entry->type == 1) { // handle
-	 * sound channel stuff
-	 * 
-	 * } */
+	 * sound channel stuff } */
 	if (stTextLang)
 	  warning ("Resource '%s' is not text.", sResLabel);
 	if (!dump_resource (sOutFile, entry, dump_output_data, NULL)) {
@@ -798,11 +796,12 @@ main_dump (void)
 	if (!sNoConvVag) {
 	  rco_map_func (rco, NULL, NULL, compile_vagconv_map);
 	} else
-	  rco_map_func (rco, NULL, NULL, compile_wavcheck_map);	// verify there 
-								// are no
-								// orphaned
-								// .wav sound
-								// references
+	  rco_map_func (rco, NULL, NULL, compile_wavcheck_map);	// verify there
+	//
+	// are no
+	// orphaned
+	// .wav sound
+	// references
 	if (!sNoConvVsmx) {
 	  rco_map_func (rco, NULL, NULL, compile_vsmxconv_map);
 	}
@@ -873,9 +872,9 @@ main_dump (void)
 		    fread (((char **) buf)[channels] + len[channels], 1,
 		    READ_BUFFER, fp);
 	      }
-	      /* 
+	      /*
 	       * fseek(fp, 0, SEEK_END); len[channels] = ftell(fp); rewind(fp);
-	       * 
+	       *
 	       * buf[channels] = malloc(len[channels]); fileread(fp,
 	       * buf[channels], len[channels]); */
 	      fclose (fp);
@@ -888,7 +887,8 @@ main_dump (void)
 	      warning ("Unable to open file %s", app_argv[i]);
 	  }
 
-	  uint8_t success = vag2wav (app_argv[app_argc - 1], channels, len, buf);
+	  uint8_t success =
+	      vag2wav (app_argv[app_argc - 1], channels, len, buf);
 
 	  free (len);
 	  while (channels--)
@@ -1117,7 +1117,7 @@ main_dump (void)
 	      if (warnUnk && j == num) {
 		error ("Unknown option '%s'.", app_argv[i]);
 		exit (RETERR_SYNTAX);
-		/* warning("Unknown option '%s'.", argv[i]); argv[i][0] = '\0'; 
+		/* warning("Unknown option '%s'.", argv[i]); argv[i][0] = '\0';
 		 * // don't warn them again */
 	      }
 	    }

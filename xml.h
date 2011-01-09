@@ -19,8 +19,10 @@ rRCOFile *read_xml (char *fn);
 
 #define RCOXML_TABLE_2ND_DIM 20
 typedef char ((*RcoTableMap)[RCOXML_TABLE_2ND_DIM]);	// doesn't make
+
 							// sense...  I want a
-							// pointer to an array, 
+							// pointer to an array,
+							//
 							// not an array of
 							// pointers...
 extern RcoTableMap RCOXML_TABLE_DATA_COMPRESSION;

@@ -18,8 +18,9 @@
 
 #define IMP(a,b) (!(a) || (b))	// logical implication, ie, a implies b
 
-void xmlwrite_entry (rRCOEntry * entry, uint32_t depth, rRCOFile * rco, FILE * fp,
-    char *textDir, uint8_t textXmlOut, int sndDumped, uint8_t vsmxConv);
+void xmlwrite_entry (rRCOEntry * entry, uint32_t depth, rRCOFile * rco,
+    FILE * fp, char *textDir, uint8_t textXmlOut, int sndDumped,
+    uint8_t vsmxConv);
 void xmlwrite_entry_extra_object (uint16_t type, uint8_t * info, rRCOFile * rco,
     FILE * fp);
 void xmlwrite_entry_extra_anim (uint16_t type, uint8_t * info, rRCOFile * rco,
@@ -109,7 +110,7 @@ xmlwrite_entry (rRCOEntry * entry, uint32_t depth, rRCOFile * rco, FILE * fp,
     sprintf (tagName, "Unknown_0x%x_0x%x", entry->id, entry->type);
   }
 
-  /* 
+  /*
    * switch(entry->id) { case RCO_TABLE_MAIN: strcpy(tagName, "Main"); break;
    * case RCO_TABLE_IMG: strcpy(tagName, "Image"); break; case RCO_TABLE_SOUND:
    * strcpy(tagName, "Sound"); break; case RCO_TABLE_MODEL: strcpy(tagName,
@@ -126,7 +127,7 @@ xmlwrite_entry (rRCOEntry * entry, uint32_t depth, rRCOFile * rco, FILE * fp,
    * RCO_TABLE_ANIM: if(entry->type <= RCO_ANIM_EXTRA_LEN_NUM) { char*
    * animTags[] = {"Anim", "Animation", "Move", "ColourChange", "Rotate",
    * "Resize", "Fade", "Delay", "FireEvent", "Lock", "Unlock", "UnknownB"};
-   * tagName = animTags[entry->type]; } else sprintf(tagName, "AnimUnknown0x%x", 
+   * tagName = animTags[entry->type]; } else sprintf(tagName, "AnimUnknown0x%x",
    * entry->type); break; } */
 
   for (i = 0; i < depth; i++)
@@ -168,22 +169,22 @@ xmlwrite_entry (rRCOEntry * entry, uint32_t depth, rRCOFile * rco, FILE * fp,
   }
   // extra attribs
   if (isMainTable) {
-    /* 
+    /*
      * // pointer ordering uint32_t numPtrs = 0; void* ptrs; switch(entry->id) {
      * case RCO_TABLE_TEXT: ptrs = rco->ptrText; numPtrs = rco->numPtrText;
      * break; case RCO_TABLE_IMG: ptrs = rco->ptrImg; numPtrs = rco->numPtrImg;
      * break; case RCO_TABLE_SOUND: ptrs = rco->ptrSound; numPtrs =
      * rco->numPtrSound; break; case RCO_TABLE_MODEL: ptrs = rco->ptrModel;
      * numPtrs = rco->numPtrModel; break; case RCO_TABLE_OBJ: ptrs =
-     * rco->ptrObj; numPtrs = rco->numPtrObj; break; case RCO_TABLE_ANIM: ptrs = 
+     * rco->ptrObj; numPtrs = rco->numPtrObj; break; case RCO_TABLE_ANIM: ptrs =
      * rco->ptrAnim; numPtrs = rco->numPtrAnim; break; } if(numPtrs) { uint32_t j;
      * fputs(" ptrorder=\"", fp); for(i=0; i<numPtrs; i++) { if(i) fputs(",",
      * fp);
-     * 
+     *
      * fputc('\n', fp); for(j=0; j<depth+2; j++) fputc('\t', fp);
-     * 
+     *
      * // special case for text if(entry->id == RCO_TABLE_TEXT) {
-     * rRCOTextIdxPtr* tip = &(((rRCOTextIdxPtr*)ptrs)[i]); if(tip->textEntry && 
+     * rRCOTextIdxPtr* tip = &(((rRCOTextIdxPtr*)ptrs)[i]); if(tip->textEntry &&
      * tip->index) { char tmp[30];
      * rcoxml_int_to_text(((rRCOTextEntry*)tip->textEntry->extra)->lang,
      * RCOXML_TABLE_TEXT_LANG, tmp); fprintf(fp, "%s:%s", tmp, rco->labels +
@@ -332,10 +333,10 @@ xmlwrite_entry_extra_object (uint16_t type, uint8_t * info, rRCOFile * rco,
     return;			// TODO: handle unknown object types?
 
   for (i = 0, i2 = 0; i < numEntries; i++, i2++) {	// i2 doesn't include
-							// the position entry,
-							// plus doesn't
-							// increase twice for a 
-							// reference
+    // the position entry,
+    // plus doesn't
+    // increase twice for a
+    // reference
     // is this entry a reference?
     uint8_t isRef = RCO_OBJ_IS_REF (type, i2);
 
@@ -396,12 +397,13 @@ xmlwrite_entry_extra_object (uint16_t type, uint8_t * info, rRCOFile * rco,
     fputs ("\"", fp);
     if (isRef)
       i++;			// need to do this since the tables consider
-				// refs to take two entries
+    // refs to take two entries
   }
 }
 
 void
-xmlwrite_entry_extra_anim (uint16_t type, uint8_t * info, rRCOFile * rco, FILE * fp)
+xmlwrite_entry_extra_anim (uint16_t type, uint8_t * info, rRCOFile * rco,
+    FILE * fp)
 {
 
   int numEntries = RCO_ANIM_EXTRA_LEN[type];
@@ -411,10 +413,10 @@ xmlwrite_entry_extra_anim (uint16_t type, uint8_t * info, rRCOFile * rco, FILE *
     return;			// TODO: handle unknown object types?
 
   for (i = 0, i2 = 0; i < numEntries; i++, i2++) {	// i2 doesn't include
-							// the position entry,
-							// plus doesn't
-							// increase twice for a 
-							// reference
+    // the position entry,
+    // plus doesn't
+    // increase twice for a
+    // reference
     // is this entry a reference?
     uint8_t isRef = RCO_ANIM_IS_REF (type, i2);
 
@@ -475,35 +477,35 @@ xmlwrite_entry_extra_anim (uint16_t type, uint8_t * info, rRCOFile * rco, FILE *
     fputs ("\"", fp);
     if (isRef)
       i++;			// need to do this since the tables consider
-				// refs to take two entries
+    // refs to take two entries
   }
 }
 
-/* 
+/*
  * void xmlwrite_entry_extra_anim(uint16_t type, uint8_t* info, rRCOFile* rco,
  * FILE* fp) { int numEntries = RCO_ANIM_EXTRA_LEN[type]; int i;
- * 
+ *
  * if(numEntries < 1) return; // TODO: handle unknown anim types?
- * 
+ *
  * // TODO: this method makes the number following unknown tag names disregard
  * the reference (should fix this) if(RCO_ANIM_EXTRA_REFS[type]) { if(type ==
  * RCO_ANIM_TYPE_EVENT) fputs(" event=\"", fp); else fputs(" object=\"", fp);
  * xml_fputref((rRCORef*)info, rco, fp); fputs("\"", fp);
- * 
+ *
  * info += sizeof(rRCORef); numEntries -= 2; }
- * 
- * for(i=0; i<numEntries; i++) { fputc(' ', fp); // do we have a label for this 
+ *
+ * for(i=0; i<numEntries; i++) { fputc(' ', fp); // do we have a label for this
  * thing? if(RCO_ANIM_EXTRA_NAMES[type][i][0]) {
  * fputs(RCO_ANIM_EXTRA_NAMES[type][i], fp); } else { fputs("unknown", fp);
  * switch(RCO_ANIM_EXTRA_TYPES[type][i]) { case RCO_OBJ_EXTRA_TYPE_FLOAT:
  * fputs("Float", fp); break; case RCO_OBJ_EXTRA_TYPE_INT: fputs("Int", fp);
  * break; } fprintf(fp, "%d", i); } fputs("=\"", fp);
- * 
+ *
  * if(RCO_ANIM_EXTRA_TYPES[type][i] == RCO_OBJ_EXTRA_TYPE_FLOAT) fprintf(fp,
  * "%g", *(float*)info); else fprintf(fp, "0x%x", *(uint32_t*)info);
- * 
+ *
  * info += sizeof(uint32_t); // or sizeof(float)
- * 
+ *
  * fputs("\"", fp); } } */
 
 void
@@ -559,7 +561,7 @@ xml_fputref (rRCORef * ref, rRCOFile * rco, FILE * fp)
       fputs (((rRCOEntry *) (ref->ptr))->labelOffset + rco->labels, fp);
     else
       fputs ("", fp);		// TODO: handle situations where there isn't a
-				// label...
+    // label...
   }
 }
 
