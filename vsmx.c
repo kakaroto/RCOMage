@@ -459,8 +459,8 @@ void* writeVSMXMem(unsigned int* len, VsmxMem* in) {
 
 // macro used in both decode and decompile functions
 #define CHECK_INDEX(num,nam) \
-	if(in->code[i].val >= num) { \
-		error("Invalid " nam " index 0x%x at group %d!", in->code[i].val, i); \
+	if(in->code[i].val.u32 >= num) { \
+		error("Invalid " nam " index 0x%x at group %d!", in->code[i].val.u32, i); \
 		return 1; \
 	}
 
@@ -479,32 +479,32 @@ int VsmxDecode(VsmxMem* in, FILE* out) {
 		switch(in->code[i].id & 0xFF) {
 			
 			case VID_CONST_BOOL:
-				if(in->code[i].val == 1)
+				if(in->code[i].val.u32 == 1)
 					fputws(L" true", out);
-				else if(in->code[i].val == 0)
+				else if(in->code[i].val.u32 == 0)
 					fputws(L" false", out);
 				else {
-					warning("Unexpected boolean value 0x%x at line %d!", in->code[i].val, i+1);
-					fwprintf(out, L" 0x%x", in->code[i].val);
+					warning("Unexpected boolean value 0x%x at line %d!", in->code[i].val.u32, i+1);
+					fwprintf(out, L" 0x%x", in->code[i].val.u32);
 				}
 			break;
 			case VID_CONST_INT:
-				fwprintf(out, L" %u", in->code[i].val);
+				fwprintf(out, L" %u", in->code[i].val.u32);
 			break;
 			case VID_CONST_FLOAT:
-				fwprintf(out, L" %#g", *(float*)(&in->code[i].val));
+				fwprintf(out, L" %#g", in->code[i].val.f);
 			break;
 			case VID_CONST_STRING:
 				CHECK_INDEX(in->numText, "text");
-				fwprintf(out, L" \"%ls\"", in->pText[in->code[i].val]);
+				fwprintf(out, L" \"%ls\"", in->pText[in->code[i].val.u32]);
 			break;
 			case VID_VARIABLE: {
 				// for some reason, the %s modifier in fwprintf doesn't work properly... :/ so we need to convert to a wide char string
 				wchar *tmp;
-				uint tmpLen = strlen(in->pNames[in->code[i].val]);
+				uint tmpLen = strlen(in->pNames[in->code[i].val.u32]);
 				CHECK_INDEX(in->numNames, "name");
 				tmp = (wchar*)malloc((tmpLen+1) * sizeof(wchar));
-				strwcpy(tmp, in->pNames[in->code[i].val], tmpLen+1);
+				strwcpy(tmp, in->pNames[in->code[i].val.u32], tmpLen+1);
 				fwprintf(out, L" %ls", tmp);
 				free(tmp);
 			} break;
@@ -513,33 +513,33 @@ int VsmxDecode(VsmxMem* in, FILE* out) {
 			case VID_UNK_31:
 			case VID_UNSET:
 				CHECK_INDEX(in->numProp, "property");
-				fwprintf(out, L" %ls", in->pProp[in->code[i].val]);
+				fwprintf(out, L" %ls", in->pProp[in->code[i].val.u32]);
 			break;
 			case VID_FUNCTION:
 				if(in->code[i].id >> 16 & 0xFF)
 					warning("Unexpected flag value for function at line %d, expected 0, got %d", i+1, in->code[i].id >> 16 & 0xFF);
-				fwprintf(out, L" args=%u, flag=%u, start_line=%u", (in->code[i].id >> 8) & 0xFF, (in->code[i].id >> 24) & 0xFF, in->code[i].val+1);
+				fwprintf(out, L" args=%u, flag=%u, start_line=%u", (in->code[i].id >> 8) & 0xFF, (in->code[i].id >> 24) & 0xFF, in->code[i].val.u32+1);
 			break;
 			case VID_UNNAMED_VAR:
-				fwprintf(out, L" %u", in->code[i].val);
+				fwprintf(out, L" %u", in->code[i].val.u32);
 			break;
 			
 			// jumps
 			case VID_SECT_START:
 			case VID_JUMP_TRUE:
 			case VID_JUMP_FALSE:
-				fwprintf(out, L" line=%u", in->code[i].val+1);
+				fwprintf(out, L" line=%u", in->code[i].val.u32+1);
 			break;
 			
 			// function calls
 			case VID_CALL_FUNC:
 			case VID_CALL_METHOD:
 			case VID_CALL_INBUILT:
-				fwprintf(out, L" args=%u", in->code[i].val);
+				fwprintf(out, L" args=%u", in->code[i].val.u32);
 			break;
 			
 			case VID_MAKE_FLOAT_ARRAY:
-				fwprintf(out, L" items=%u", in->code[i].val);
+				fwprintf(out, L" items=%u", in->code[i].val.u32);
 				break;
 			
 			// ops w/o arg - check for zero
@@ -572,14 +572,14 @@ int VsmxDecode(VsmxMem* in, FILE* out) {
 			case VID_ARRAY_ELEM:
 			case VID_RETURN:
 			case VID_END:
-				if(in->code[i].val)
+				if(in->code[i].val.u32)
 					warning("Unexpected non-zero value at line %d!", i+1);
 				
 			break;
 			
 			default:
 				warning("Unknown ID 0x%x at line %d", in->code[i].id, i+1);
-				fwprintf(out, L" 0x%x", in->code[i].id, in->code[i].val);
+				fwprintf(out, L" 0x%x", in->code[i].id, in->code[i].val.u32);
 		}
 		fputwc(L'\n', out);
 	}
@@ -602,7 +602,7 @@ unsigned int VsmxAddText(void** text, unsigned int** offs, unsigned int* textLen
 			error("malloc failed");
 			exit(1);
 		}
-		while(*ptr = (char)(*newText)) {
+		while((*ptr = (char)(*newText))) {
 			ptr++;
 			newText++;
 		}
@@ -809,7 +809,7 @@ VsmxMem* VsmxEncode(FILE* in) {
 		ret->codeGroups++;
 		ret->code = (VSMXGroup*)realloc(ret->code, ret->codeGroups * sizeof(VSMXGroup));
 		ret->code[ret->codeGroups-1].id = opNum2;
-		ret->code[ret->codeGroups-1].val = argNum;
+		ret->code[ret->codeGroups-1].val.u32 = argNum;
 		
 		lineCount++;
 	}
@@ -940,7 +940,7 @@ int VsmxDecompile(VsmxMem* in, FILE* out) {
 		item.arrayFlag = 0;
 		
 		item.item.id = 0;
-		item.item.val = 0;
+		item.item.val.u32 = 0;
 		
 		// TODO: check that in->code[i].val is 0 for various things
 		
@@ -969,7 +969,7 @@ int VsmxDecompile(VsmxMem* in, FILE* out) {
 					// check for special and operation
 					if(in->code[i].id == VID_JUMP_FALSE) {
 						// this upcomming if acts as an AND - we'll display this as a nested if though
-						mStack->loc = in->code[i].val;
+						mStack->loc = in->code[i].val.u32;
 						// duplicate this marker as a copy will get popped later
 						VsmxDecompMarkStackPush(&mStack, mStack);
 						wcscat(item.str, L" /* AND condition shown as nested if */ ");
@@ -1069,30 +1069,30 @@ int VsmxDecompile(VsmxMem* in, FILE* out) {
 			
 			//case VID_CONST_TIME: break; // TODO:
 			case VID_CONST_BOOL:
-				if(in->code[i].val == 0)
+				if(in->code[i].val.u32 == 0)
 					wcscpy(item.str, L"false");
 				else {
 					wcscpy(item.str, L"true");
-					if(in->code[i].val != 1)
+					if(in->code[i].val.u32 != 1)
 						warning("Boolean value at group #%d is not 0 or 1.", i);
 				}
 				VsmxDecompileStackPush(&stack, &item);
 			break;
 			
 			case VID_CONST_INT:
-				//swprintf(item.str, MAX_TEXT_LEN, L"%u", in->code[i].val);
-				SWPRINTF_ITEM("%u", in->code[i].val);
+				//swprintf(item.str, MAX_TEXT_LEN, L"%u", in->code[i].val.u32);
+				SWPRINTF_ITEM("%u", in->code[i].val.u32);
 				VsmxDecompileStackPush(&stack, &item);
 			break;
 			case VID_CONST_FLOAT:
-				//swprintf(item.str, MAX_TEXT_LEN, L"%f", *(float*)(&in->code[i].val));
-				SWPRINTF_ITEM("%#g", *(float*)(&in->code[i].val));
+				//swprintf(item.str, MAX_TEXT_LEN, L"%f", *(float*)(&in->code[i].val.u32));
+				SWPRINTF_ITEM("%#g", in->code[i].val.f);
 				VsmxDecompileStackPush(&stack, &item);
 			break;
 			case VID_CONST_STRING: { // TODO: unicode issues... :(
 				CHECK_INDEX(in->numText, "text");
-				//swprintf(item.str, MAX_TEXT_LEN, L"\"%s\"", in->pText[in->code[i].val]);
-				SWPRINTF_ITEM("\"%ls\"", in->pText[in->code[i].val]);
+				//swprintf(item.str, MAX_TEXT_LEN, L"\"%s\"", in->pText[in->code[i].val.u32]);
+				SWPRINTF_ITEM("\"%ls\"", in->pText[in->code[i].val.u32]);
 				VsmxDecompileStackPush(&stack, &item);
 			} break;
 			case VID_THIS: {
@@ -1100,13 +1100,13 @@ int VsmxDecompile(VsmxMem* in, FILE* out) {
 				VsmxDecompileStackPush(&stack, &item);
 			} break;
 			case VID_UNNAMED_VAR:
-				//swprintf(item.str, MAX_TEXT_LEN, L"__GLOBALS__[%u]", in->code[i].val);
-				SWPRINTF_ITEM("__var%u", in->code[i].val);
+				//swprintf(item.str, MAX_TEXT_LEN, L"__GLOBALS__[%u]", in->code[i].val.u32);
+				SWPRINTF_ITEM("__var%u", in->code[i].val.u32);
 				VsmxDecompileStackPush(&stack, &item);
 			break;
 			case VID_VARIABLE:
 				CHECK_INDEX(in->numNames, "name");
-				strwcpy(item.str, in->pNames[in->code[i].val], MAX_TEXT_LEN);
+				strwcpy(item.str, in->pNames[in->code[i].val.u32], MAX_TEXT_LEN);
 				VsmxDecompileStackPush(&stack, &item);
 			break;
 			
@@ -1116,11 +1116,11 @@ int VsmxDecompile(VsmxMem* in, FILE* out) {
 					VsmxDecompileStack *obj, *val;
 					val = VsmxDecompileStackPop(&stack);
 					obj = VsmxDecompileStackPop(&stack);
-					SWPRINTF_ITEM("%ls.%ls = %ls", obj->str, in->pProp[in->code[i].val], val->str);
+					SWPRINTF_ITEM("%ls.%ls = %ls", obj->str, in->pProp[in->code[i].val.u32], val->str);
 					free(obj);
 					free(val);
 				} else
-					wcscpy(item.str, in->pProp[in->code[i].val]);
+					wcscpy(item.str, in->pProp[in->code[i].val.u32]);
 				VsmxDecompileStackPush(&stack, &item);
 			break;
 			
@@ -1131,11 +1131,11 @@ int VsmxDecompile(VsmxMem* in, FILE* out) {
 				VsmxDecompileStack *prev;
 				prev = VsmxDecompileStackPop(&stack);
 				CHECK_INDEX(in->numProp, "property/method");
-				//swprintf(item.str, MAX_TEXT_LEN, L"%s.%s", prev->str, in->pProp[in->code[i].val]);
+				//swprintf(item.str, MAX_TEXT_LEN, L"%s.%s", prev->str, in->pProp[in->code[i].val.u32]);
 				if(in->code[i].id == VID_UNSET)
-					SWPRINTF_ITEM("delete %ls.%ls", prev->str, in->pProp[in->code[i].val]);
+					SWPRINTF_ITEM("delete %ls.%ls", prev->str, in->pProp[in->code[i].val.u32]);
 				else
-					SWPRINTF_ITEM("%ls.%ls", prev->str, in->pProp[in->code[i].val]);
+					SWPRINTF_ITEM("%ls.%ls", prev->str, in->pProp[in->code[i].val.u32]);
 				VsmxDecompileStackPush(&stack, &item);
 				free(prev);
 			} break;
@@ -1146,7 +1146,7 @@ int VsmxDecompile(VsmxMem* in, FILE* out) {
 				VsmxDecompileStack *prev;
 				uint j;
 				
-				for(j=0; j<in->code[i].val; j++) {
+				for(j=0; j<in->code[i].val.u32; j++) {
 					prev = VsmxDecompileStackPop(&stack);
 					if(j)
 						SWPRINTF_ITEM(" %ls,%ls", prev->str, item.str);
@@ -1206,7 +1206,7 @@ int VsmxDecompile(VsmxMem* in, FILE* out) {
 			case VID_FUNCTION: {
 				// TODO: need to check marker stack for look aheads
 				// !!! note look ahead used!
-				Bool funcEndStmtStyle = (i+3 < in->codeGroups && in->code[i+2].id == VID_END_STMT && in->code[i+3].id == VID_SECT_START && in->code[i].val == i+4);
+				Bool funcEndStmtStyle = (i+3 < in->codeGroups && in->code[i+2].id == VID_END_STMT && in->code[i+3].id == VID_SECT_START && in->code[i].val.u32 == i+4);
 				
 				wchar args[4096] = L""; // large enough for anything
 				uint numArgs = (in->code[i].id >> 8) & 0xFF, argI;
@@ -1224,11 +1224,11 @@ int VsmxDecompile(VsmxMem* in, FILE* out) {
 				
 				if(i+2 < in->codeGroups && in->code[i+1].id == VID_OPERATOR_ASSIGN && (
 					funcEndStmtStyle || 
-					(in->code[i+2].id == VID_SECT_START && in->code[i].val == i+3)
+					(in->code[i+2].id == VID_SECT_START && in->code[i].val.u32 == i+3)
 				)) {
 					// abc = function() style?
 					
-					if(in->code[i+1].val || (funcEndStmtStyle && in->code[i+2].val)) {
+					if(in->code[i+1].val.u32 || (funcEndStmtStyle && in->code[i+2].val.u32)) {
 						warning("Unexpected values in function definition style at %d", i);
 					}
 					
@@ -1262,7 +1262,7 @@ int VsmxDecompile(VsmxMem* in, FILE* out) {
 						i += 2;
 					else
 						i++;
-				} else if(i+1 < in->codeGroups && in->code[i+1].id == VID_SECT_START && in->code[i].val == i+2) {
+				} else if(i+1 < in->codeGroups && in->code[i+1].id == VID_SECT_START && in->code[i].val.u32 == i+2) {
 					// function abc() style?
 					VsmxDecompileStack *prev;
 					prev = VsmxDecompileStackPop(&stack);
@@ -1273,14 +1273,14 @@ int VsmxDecompile(VsmxMem* in, FILE* out) {
 				}
 				else {
 					warning("Unexpected function definition syntax at %d!", i);
-					SWPRINTF_ITEM("function __%u__(%ls)", in->code[i].val, args);
+					SWPRINTF_ITEM("function __%u__(%ls)", in->code[i].val.u32, args);
 					VsmxDecompileStackPush(&stack, &item);
 				}
 			} break;
 			
 			case VID_ARRAY_INDEX: {
 				VsmxDecompileStack *idx, *parent;
-				// TODO: check that the number supplied in in->code[i].val isn't used (always is 0)!
+				// TODO: check that the number supplied in in->code[i].val.u32 isn't used (always is 0)!
 				idx = VsmxDecompileStackPop(&stack);
 				parent = VsmxDecompileStackPop(&stack);
 				SWPRINTF_ITEM("%ls[%ls]", parent->str, idx->str);
@@ -1304,19 +1304,19 @@ int VsmxDecompile(VsmxMem* in, FILE* out) {
 			case VID_CALL_METHOD:
 			case VID_CALL_INBUILT:
 			{
-				if(stack->depth < in->code[i].val) {
+				if(stack->depth < in->code[i].val.u32) {
 					error("Not enough arguments to perform requested function call at group %d.", i);
 					return 1;
 				}
 				VsmxDecompileStack *prev;
-				if(in->code[i].val > 0) {
+				if(in->code[i].val.u32 > 0) {
 					uint arg;
 					strwcpy(item.str, " )", MAX_TEXT_LEN);
-					for(arg = 0; arg < in->code[i].val; arg++) {
+					for(arg = 0; arg < in->code[i].val.u32; arg++) {
 						prev = VsmxDecompileStackPop(&stack);
 						//swprintf(item.str, MAX_TEXT_LEN, L"%s%s", prev->str, item.str);
 						//SWPRINTF_ITEM("%ls%ls", prev->str, item.str);
-						if(arg+1 < in->code[i].val) {
+						if(arg+1 < in->code[i].val.u32) {
 							//swprintf(item.str, MAX_TEXT_LEN, L", %s", item.str);
 							//SWPRINTF_ITEM(", %ls", item.str);
 							memmove(prev->str + 2, prev->str, (wcslen(prev->str)+1)*sizeof(wchar));
@@ -1358,33 +1358,33 @@ int VsmxDecompile(VsmxMem* in, FILE* out) {
 					// check that next group is a sect start
 					   i+1 < in->codeGroups && in->code[i+1].id == VID_SECT_START
 					// check that end of for stmt is a jump back
-					&& in->code[i].val < in->codeGroups && in->code[in->code[i].val-1].id == VID_SECT_START && in->code[in->code[i].val-1].val == stmtStart
+					&& in->code[i].val.u32 < in->codeGroups && in->code[in->code[i].val.u32-1].id == VID_SECT_START && in->code[in->code[i].val.u32-1].val.u32 == stmtStart
 					// end of for loop should be after end of for stmt
-					&& in->code[i+1].val > in->code[i].val
+					&& in->code[i+1].val.u32 > in->code[i].val.u32
 					// check that end of for loop jumps back to incrementor
-					&& in->code[i+1].val < in->codeGroups && in->code[in->code[i+1].val-1].id == VID_SECT_START && in->code[in->code[i+1].val-1].val == i+2
+					&& in->code[i+1].val.u32 < in->codeGroups && in->code[in->code[i+1].val.u32-1].id == VID_SECT_START && in->code[in->code[i+1].val.u32-1].val.u32 == i+2
 				) {
 					// assume for loop
-					SWPRINTF_ITEM("for(; %ls /* jump to %d */; ", prev->str, in->code[i].val);
+					SWPRINTF_ITEM("for(; %ls /* jump to %d */; ", prev->str, in->code[i].val.u32);
 					VsmxDecompileStackPush(&stack, &item);
 					
-					forStmtEnd = in->code[i].val;
+					forStmtEnd = in->code[i].val.u32;
 					// push for end marker of loop
 					mItem.src = i+1;
-					mItem.loc = in->code[i+1].val;
+					mItem.loc = in->code[i+1].val.u32;
 					VsmxDecompMarkStackPush(&mStack, &mItem);
 					// push for end bracket on for()
 					mItem.src = i;
-					mItem.loc = in->code[i].val;
+					mItem.loc = in->code[i].val.u32;
 					VsmxDecompMarkStackPush(&mStack, &mItem);
 					i++;
 				} else {
 					// assume OR
-					SWPRINTF_ITEM("( %ls ) || /* ends at %d */ ( ", prev->str, in->code[i].val);
+					SWPRINTF_ITEM("( %ls ) || /* ends at %d */ ( ", prev->str, in->code[i].val.u32);
 					VsmxDecompileStackPush(&stack, &item);
 					
 					mItem.src = i;
-					mItem.loc = in->code[i].val;
+					mItem.loc = in->code[i].val.u32;
 					VsmxDecompMarkStackPush(&mStack, &mItem);
 				}
 				free(prev);
@@ -1394,11 +1394,11 @@ int VsmxDecompile(VsmxMem* in, FILE* out) {
 			// section markers
 			case VID_SECT_START: if(!op[0]) {
 				// this is either a function start or "else" section, or end of loop
-				if(mStack && (in->code[mStack->src].id == VID_JUMP_FALSE || (in->code[mStack->src].id == VID_SECT_START && in->code[i].val < i))) {
+				if(mStack && (in->code[mStack->src].id == VID_JUMP_FALSE || (in->code[mStack->src].id == VID_SECT_START && in->code[i].val.u32 < i))) {
 					// check whether else or end of while
-					if(in->code[i].val < i) {
+					if(in->code[i].val.u32 < i) {
 						// assume end of loop
-						SWPRINTF(op, 50, L"} %%ls/* jump back to %d */\n", in->code[i].val);
+						SWPRINTF(op, 50, L"} %%ls/* jump back to %d */\n", in->code[i].val.u32);
 						// push dummy element
 						VsmxDecompileStackPush(&stack, &item);
 						if(indent > 0) indent--; // this should always be true
@@ -1427,20 +1427,20 @@ int VsmxDecompile(VsmxMem* in, FILE* out) {
 							// inline else
 							wcscat(stack->str, L" : ");
 							mItem.src = i;
-							mItem.loc = in->code[i].val;
+							mItem.loc = in->code[i].val.u32;
 							VsmxDecompMarkStackPush(&mStack, &mItem);
 							break;
 						} else {
-							SWPRINTF(op, 50, L"} else %%ls{ /* ends at %d */\n", in->code[i].val);
+							SWPRINTF(op, 50, L"} else %%ls{ /* ends at %d */\n", in->code[i].val.u32);
 							// push dummy element
 							VsmxDecompileStackPush(&stack, &item);
 						}
 					}
-				} else if(mStack && in->code[mStack->src].id == VID_JUMP_TRUE && in->code[mStack->src].val == i+1) {
+				} else if(mStack && in->code[mStack->src].id == VID_JUMP_TRUE && in->code[mStack->src].val.u32 == i+1) {
 					// for loop end of stmt probably
 					if(stack) warning("Unexpected stack at end of for at %d", i);
 					// TODO: need to fix this so it doesn't go on a new line
-					SWPRINTF(op, 50, L"%%ls /* return to %d */) {\n", in->code[i].val);
+					SWPRINTF(op, 50, L"%%ls /* return to %d */) {\n", in->code[i].val.u32);
 					// push dummy element
 					VsmxDecompileStackPush(&stack, &item);
 					indentAdd++;
@@ -1451,19 +1451,19 @@ int VsmxDecompile(VsmxMem* in, FILE* out) {
 					
 				} else {
 					// function start
-					SWPRINTF(op, 50, L"%%ls { /* ends at %d */\n", in->code[i].val); // wcscpy(op, L"%s {\n");
+					SWPRINTF(op, 50, L"%%ls { /* ends at %d */\n", in->code[i].val.u32); // wcscpy(op, L"%s {\n");
 				}
 			}
 			case VID_JUMP_FALSE: if(!op[0]) {
 				// !!! look ahead!
-				if(in->code[i].val-1 >= in->codeGroups) {
+				if(in->code[i].val.u32-1 >= in->codeGroups) {
 					error("Invalid jump reference supplied at %d", i);
 					return 1;
 				}
 				// check whether this is an "if" or "while"
-				if(in->code[in->code[i].val-1].id == VID_SECT_START && in->code[in->code[i].val-1].val == stmtStart) {
+				if(in->code[in->code[i].val.u32-1].id == VID_SECT_START && in->code[in->code[i].val.u32-1].val.u32 == stmtStart) {
 					// while loop
-					SWPRINTF(op, 50, L"while( %%s ) { /* ends at %d */\n", in->code[i].val); // wcscpy(op, L"while( %s ) {\n");
+					SWPRINTF(op, 50, L"while( %%s ) { /* ends at %d */\n", in->code[i].val.u32); // wcscpy(op, L"while( %s ) {\n");
 				} else {
 					// if statement
 					if(stack->depth > endStmtConcat-1) {
@@ -1478,20 +1478,20 @@ int VsmxDecompile(VsmxMem* in, FILE* out) {
 							free(prev);
 						}
 						endStmtConcat = 2;
-						SWPRINTF_ITEM("( %ls ? /* ends at %d */ ", tmp, in->code[i].val);
+						SWPRINTF_ITEM("( %ls ? /* ends at %d */ ", tmp, in->code[i].val.u32);
 						VsmxDecompileStackPush(&stack, &item);
 						mItem.src = i;
-						mItem.loc = in->code[i].val;
+						mItem.loc = in->code[i].val.u32;
 						VsmxDecompMarkStackPush(&mStack, &mItem);
 						break;
 					} else {
-						SWPRINTF(op, 50, L"if( %%s ) { /* ends at %d */\n", in->code[i].val); // wcscpy(op, L"if( %s ) {\n");
+						SWPRINTF(op, 50, L"if( %%s ) { /* ends at %d */\n", in->code[i].val.u32); // wcscpy(op, L"if( %s ) {\n");
 					}
 				}
 			}
 			if(!notSectStart) {
 				mItem.src = i;
-				mItem.loc = in->code[i].val;
+				mItem.loc = in->code[i].val.u32;
 				VsmxDecompMarkStackPush(&mStack, &mItem);
 				indentAdd++;
 			} // fall through to end of statement
@@ -1544,7 +1544,7 @@ int VsmxDecompile(VsmxMem* in, FILE* out) {
 			
 			default:
 				warning("Unknown id 0x%x at %d", in->code[i].id, i);
-				SWPRINTF_ITEM("<< UNKNOWN 0x%x 0x%x >>", in->code[i].id, in->code[i].val);
+				SWPRINTF_ITEM("<< UNKNOWN 0x%x 0x%x >>", in->code[i].id, in->code[i].val.u32);
 				VsmxDecompileStackPush(&stack, &item);
 		}
 		

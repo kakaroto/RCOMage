@@ -34,7 +34,10 @@ PACK_STRUCT(VSMXHeader, {
 
 PACK_STRUCT(VSMXGroup, {
 	uint32 id;
-	uint32 val;
+        union {
+          uint32 u32;
+          float  f;
+        } val;
 });
 
 #ifndef __GNU_C__
