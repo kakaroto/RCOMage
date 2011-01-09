@@ -19,10 +19,6 @@ const double f[5][2] = { { 0.0, 0.0 },
 
 #define ROUND(x) ((int)(x<0 ? x-0.5 : x+0.5))
 
-#ifndef __GNU_C__
-#pragma pack(push, 4)
-#pragma pack(1)
-#endif
 
 #define VAG_SIGNATURE 0x70474156
 #define VAG_VERSION 0x4000000 //0x2000000
@@ -64,9 +60,6 @@ PACK_STRUCT(WavHeader, {
 	uint32 s2sig;		// "data"
 	uint32 s2size;		// = numSamples * channels * bitDepth/8  OR size-36
 });
-#ifndef __GNU_C__
-#pragma pack(pop)
-#endif
 
 
 // TODO: sanity checks with lengths

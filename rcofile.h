@@ -4,13 +4,6 @@
 
 #include "general.h"
 
-
-#ifndef __GNU_C__
-#pragma pack(push, 4)
-#pragma pack(1)
-#endif
-
-
 #define RCO_NULL_PTR 0xFFFFFFFF
 
 #define RCO_TABLE_MAIN 1
@@ -259,9 +252,6 @@ PACK_STRUCT(TextComprInfo, {
 	uint32 unpackedLen;
 });
 
-#ifndef __GNU_C__
-#pragma pack(pop)
-#endif
 
 
 #endif

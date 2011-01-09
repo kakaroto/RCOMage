@@ -3,12 +3,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdio.h>
-
-#ifndef __GNU_C__ // MSVC
-typedef __int64 int64_t;
-#else
 #include <stdint.h>
-#endif
 
 #define RLZI_WINDOW_SIZE	0x7FED		// *4 = 130,996 bytes (128KB - 76 bytes)
 #define RLZI_DICTIONARY_SIZE	0x3FFFF		// *4 = 1,048,572 bytes (1MB - 4 bytes)

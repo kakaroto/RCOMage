@@ -4,6 +4,7 @@
 
 //#define DISABLE_RLZ
 
+#include <stdint.h>
 
 #define APPNAME "Rcomage"
 #define APPNAME_VER "Rcomage v1.1.1"
@@ -47,36 +48,19 @@ extern Bool quietMode;
 #define ALIGN_TO_4(n) (((n) + 3) & (~3))
 //#define ALIGN_TO_4(n) (((n) + 3) >>2 <<2) // problem: upper 2 bits gets wiped too
 
-#ifndef __GNU_C__
-typedef unsigned __int8 uint8;
-typedef __int8 int8;
-typedef unsigned __int16 uint16;
-typedef __int16 int16;
-typedef unsigned __int32 uint32;
-typedef __int32 int32;
-#else
-#include <stdint.h>
 typedef uint8_t uint8;
 typedef int8_t int8;
 typedef uint16_t uint16;
 typedef int16_t int16;
 typedef uint32_t uint32;
 typedef int32_t int32;
-#endif
-
 
 const uint32 UTF8_BOM = 0xBFBBEF;
 const uint16 UTF16_BOM = 0xFEFF;
 const uint32 UTF32_BOM = 0x0000FEFF;
 
 
-#ifndef __GNU_C__ /* msvc */
-#define PACK_STRUCT(nam, struc) typedef struct struc nam
-// need to use pragma directives whenever we use it...
-#else /* gcc */
 #define PACK_STRUCT(nam, struc) typedef struct struc __attribute__ ((packed)) nam
-#endif
-
 
 
 uint zlib_compress(void* src, uint srcLen, void* dest, uint destLen, int level, int strat);
@@ -92,14 +76,6 @@ Bool is_prime(uint in);
 
 void get_temp_fname(char* out, const char* ext);
 
-/*
-#ifndef Z_OK
-#define Z_OK 0
-#endif
-#ifndef Z_DATA_ERROR
-#define Z_DATA_ERROR -3
-#endif
-*/
 #define Z_USE_7Z 10
 
 #ifdef WIN32

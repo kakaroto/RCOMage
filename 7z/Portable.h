@@ -2,17 +2,8 @@
 #define __PORTABLE_H
 
 #include <string.h>
-#ifndef __GNU_C__ // MSVC
-typedef __int16 INT16;
-typedef unsigned __int16 UINT16;
-typedef __int32 INT32;
-typedef unsigned __int32 UINT32;
-typedef __int64 INT64;
-typedef unsigned __int64 UINT64;
-typedef ptrdiff_t UINT_PTR;
-typedef __int32 INT;
-#else // gcc
 #include <stdint.h>
+
 typedef int16_t INT16;
 typedef uint16_t UINT16;
 typedef int32_t INT32;
@@ -21,7 +12,6 @@ typedef int64_t INT64;
 typedef uint64_t UINT64;
 typedef uintptr_t UINT_PTR;
 typedef int32_t INT;
-#endif
 
 typedef signed char INT8;
 typedef unsigned char UINT8;

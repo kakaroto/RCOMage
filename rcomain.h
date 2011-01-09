@@ -235,22 +235,6 @@ void es_extraObjAnim(Bool isObj, int type, void* data, Bool isPS3);
 
 
 
-
-
-
-
-
-
-
-
-
-
-#ifndef __GNU_C__
-#pragma pack(push, 4)
-#pragma pack(1)
-#endif
-
-
 PACK_STRUCT(RCOObjPos, {
 	float posX;
 	float posY;
@@ -600,11 +584,6 @@ PACK_STRUCT(RCOAnimSSlideout, {
 	float unknown6;
 });
 */
-
-#ifndef __GNU_C__
-#pragma pack(pop)
-#endif
-
 
 
 #endif

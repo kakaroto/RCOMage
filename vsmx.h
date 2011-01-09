@@ -2,12 +2,6 @@
 #ifndef __VSMX_H__
 #define __VSMX_H__
 
-
-#ifndef __GNU_C__
-#pragma pack(push, 4)
-#pragma pack(1)
-#endif
-
 typedef wchar_t wchar;
 
 #define VSMX_SIGNATURE 0x584D5356 // "VSMX"
@@ -39,10 +33,6 @@ PACK_STRUCT(VSMXGroup, {
           float  f;
         } val;
 });
-
-#ifndef __GNU_C__
-#pragma pack(pop)
-#endif
 
 typedef struct {
 	VSMXGroup* code;
