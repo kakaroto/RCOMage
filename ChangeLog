@@ -1,41 +1,54 @@
 RCOMage Changelog:
 
-v1.1.1: 
-- Add --ini-dir option to allow specifying INI directory for the CLI 
-- Add version tag 0x97 as a valid PS3 tag (fixes some issues with dumping RCOs from older PS3 firmwares) [thanks to Mr Shizzy for the samples] 
-- Export animtable tag constants to .ini file; also fix up PS3's special MoveTo animation 
-- Minor modification to WAV parser - will now skip bytes if header specifies it 
-- Remove UTF-8 BOMs from dumped XML before the text values - seems to cause issues on some machines (and I don't think it's exactly valid anyway) 
-- Strip nulls from text (RCO Editor may add them) 
-- Replace the various "unknownInt1" name with "accelMode" - thanks to Vegetano1 for the find
+v1.1.1  (2nd June, 2010)
+ - Add --ini-dir option to allow specifying INI directory for the CLI
+ - Add version tag 0x97 as a valid PS3 tag (fixes some issues with dumping RCOs from older PS3 firmwares) [thanks to Mr Shizzy for the samples]
+ - Export animtable tag constants to .ini file; also fix up PS3's special MoveTo animation
+ - Minor modification to WAV parser - will now skip bytes if header specifies it
+ - Remove UTF-8 BOMs from dumped XML before the text values - seems to cause issues on some machines (and I don't think it's exactly valid anyway)
+ - Strip nulls from text (RCO Editor may add them)
+ - Replace the various "unknownInt1" name with "accelMode" - thanks to Vegetano1 for the find
 
-v1.1.0: 
-- Minor message output changes 
-- Fixed bug where rcomage may have tried to convert non-GIM images through gimconv when dumping 
-- Fixed minor issue if Image/Sound/Text tree contained no subentries 
-- Removed option to select compression for PNG/JPG/TIF/GIF resources in GUI as it's mostly useless and may break the RCO if changed 
-- Add UMDFlag attribute to RcoFile tag 
-- Reduce the use of CDATA sections in the dumped text XML file 
-- Add basic VSMX decoder/encoder; add corresponding option when dumping/compiling in CLI and GUI, as well as vsmxdec and vsmxenc functions in the CLI 
-- Add experimental VSMX -> Javascript decompiler. This will most likely crash, but if you're lucky, it might go through and give half-readable output. Only use this if you're really interested; can only be accessed via the CLI using the --decompile option of vsmxdec 
-- Export some internal constants to .ini files 
-- Add support for UTF8 and UTF32 text in RCOs (found in PS3 RCOs); also fixed some potential character encoding issues 
-- Add support for Fontstyle entries (used in the sysconf PS3 RCO) 
-- Greatly improve handling PS3 RCO object structures (thanks goes to geohot for RCO samples) 
-- Add support for writing PS3 RCOs; also modify GimConv to add PS3 configuration option 
+v1.1.0  (3rd Apr, 2010)
+ - Minor message output changes
+ - Fixed bug where rcomage may have tried to convert non-GIM images through gimconv when dumping
+ - Fixed minor issue if Image/Sound/Text tree contained no subentries
+ - Removed option to select compression for PNG/JPG/TIF/GIF resources in GUI as it's mostly useless and may break the RCO if changed
+ - Add UMDFlag attribute to RcoFile tag
+ - Reduce the use of CDATA sections in the dumped text XML file
+ - Add basic VSMX decoder/encoder; add corresponding option when dumping/compiling in CLI and GUI, as well as vsmxdec and vsmxenc functions in the CLI
+ - Add experimental VSMX -> Javascript decompiler.  This will most likely crash, but if you're lucky, it might go through and give half-readable output.  Only use this if you're really interested; can only be accessed via the CLI using the --decompile option of vsmxdec
+ - Export some internal constants to .ini files
+ - Add support for UTF8 and UTF32 text in RCOs (found in PS3 RCOs); also fixed some potential character encoding issues
+ - Add support for Fontstyle entries (used in the sysconf PS3 RCO)
+ - Greatly improve handling PS3 RCO object structures (thanks goes to geohot for RCO samples)
+ - Add support for writing PS3 RCOs; also modify GimConv to add PS3 configuration option
 
-v1.0.2:
-- statically link all libraries; also now built with MinGW so MSVC runtime no longer required
-- include required DLLs with GimConv
-- fixed bug in GUI where it didn’t chdir across drives
-- partially removed annoying auto-fill for dumping RCOs for GUI
-- fixed crash where bad label reference was supplied
-- add like two additional warnings
-- add ability to select zlib compression options from CLI
-- partial support for reading big-endian (PS3?) RCOs; it’s “partial” as there are still issues – mainly object handling is mostly stuffed up
-- fix regression in earlier update which broke VSMX dumping
-- minor changes to XML format
-- apply hack which hopefully fixes up GimConv converting from some GIMs
-- and if the above still causes GimConv to freeze, added a timeout to try to not cause Rcomage to lock up as well
-- added “vagenc” and “vagdec” functions if you happen to want to convert a .vag file
-- added “extract” function (not 100% complete)
+v1.0.2  (7th Dec, 2009)
+ - statically link all libraries; also now built with MinGW so MSVC runtime no longer required
+ - include required DLLs with GimConv
+ - fixed bug in GUI where it didn't chdir across drives
+ - partially removed annoying auto-fill for dumping RCOs for GUI
+ - fixed crash where bad label reference was supplied
+ - add like two additional warnings
+ - add ability to select zlib compression options from CLI
+ - partial support for reading big-endian (PS3?) RCOs; it's "partial" as there are still issues - mainly object handling is mostly stuffed up
+ - fix regression in earlier update which broke VSMX dumping
+ - minor changes to XML format
+ - apply hack which hopefully fixes up GimConv converting from some GIMs
+ - and if the above still causes GimConv to freeze, added a timeout to try to not cause Rcomage to lock up as well
+ - added "vagenc" and "vagdec" functions if you happen to want to convert a .vag file
+ - added "extract" function (not 100% complete)
+
+v1.0.1  (28th Oct, 2009)
+ - fix crash with WAV -> VAG conversion
+ - fix sound clipping issues with WAV -> VAG conversion (fix appears to work, but I really haven't looked at it much)
+ - added ability for compile function to read from stdin
+ - use \ for directory separators on Windows
+ - slight speedup with gimconv (no longer invokes the cmd shell)
+ - '--xml-only' switch for dumping removed, use '--resdir -' instead
+ - fix bugs relating to handling XML files with resource dumping disabled
+ - minor changes to messages
+ - GUI will attempt to use relative paths instead of always relying on absolute paths
+ - fix folder creation bug in GUI
+ - other minor GUI changes
