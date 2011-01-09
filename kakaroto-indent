@@ -54,6 +54,9 @@ BREAK_LONG_LINES=" \
 	--break-after-boolean-operator"
 
 
-
+# Fix indentation
 indent $BLANKS $COMMENTS $STATEMENTS $DECLARATIONS $INDENTATION $BREAK_LONG_LINES *.[ch]
+
+# Remove all trailing whitespaces
+sed 's/[ \t]*$//' -i *.[ch]
 
