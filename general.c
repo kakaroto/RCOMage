@@ -39,7 +39,7 @@ uint zlib_compress(void* src, uint srcLen, void* dest, uint destLen, int level, 
 				break;
 		}
 		// limits: passes [1-255], fastbytes [3-257(kMatchMaxLen)]
-		if(!compress_deflate_7z((unsigned char*)src, srcLen, destPtr, outSize, passes, fastbytes))
+		if(!compress_deflate_7z((unsigned char*)src, srcLen, destPtr, &outSize, passes, fastbytes))
 			return 0;
 		
 		if(outSize+6 > destLen) return 0;
