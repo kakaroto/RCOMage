@@ -25,9 +25,9 @@
 #include "vaghandler.h"
 #include "vsmx.h"
 
-Bool exec_gimconv (char *cmd, char *src, char *dest, char *extFlags);
+uint8_t exec_gimconv (char *cmd, char *src, char *dest, char *extFlags);
 
-Bool
+uint8_t
 dump_resource (char *dest, rRCOEntry * entry, OutputDumpFunc outputfunc,
     void *outputfuncArg)
 {
@@ -37,8 +37,8 @@ dump_resource (char *dest, rRCOEntry * entry, OutputDumpFunc outputfunc,
     return FALSE;
   }
 
-  uint len = 0;
-  uint8 *bufferMid = (uint8 *) read_resource (entry, &len);
+  uint32_t len = 0;
+  uint8_t *bufferMid = (uint8_t *) read_resource (entry, &len);
 
   if (!bufferMid)
     return FALSE;
@@ -51,13 +51,13 @@ dump_resource (char *dest, rRCOEntry * entry, OutputDumpFunc outputfunc,
   if (len != entry->srcLenUnpacked)
     warning ("Extracted resource size for does not match specified length.");
 
-  Bool ret = outputfunc (dest, (void *) bufferMid, entry, outputfuncArg);
+  uint8_t ret = outputfunc (dest, (void *) bufferMid, entry, outputfuncArg);
 
   free (bufferMid);
   return ret;
 }
 
-Bool
+uint8_t
 dump_output_data (char *dest, void *buf, rRCOEntry * entry, void *arg)
 {
   FILE *fp = openwrite (dest);
@@ -71,7 +71,7 @@ dump_output_data (char *dest, void *buf, rRCOEntry * entry, void *arg)
   return FALSE;
 }
 
-Bool
+uint8_t
 dump_output_wav (char *dest, void *buf, rRCOEntry * entry, void *arg)
 {
   int i;
@@ -80,7 +80,7 @@ dump_output_wav (char *dest, void *buf, rRCOEntry * entry, void *arg)
   void **vagData = (void **) malloc (rse->channels * sizeof (void *));
   int *vagLen = (int *) malloc (rse->channels * sizeof (int));
 
-  Bool ret;
+  uint8_t ret;
 
   for (i = 0; i < rse->channels; i++) {
     vagLen[i] = rse->channelData[i * 2];
@@ -93,14 +93,14 @@ dump_output_wav (char *dest, void *buf, rRCOEntry * entry, void *arg)
   return ret;
 }
 
-Bool
+uint8_t
 dump_output_gimconv (char *dest, void *buf, rRCOEntry * entry, void *arg)
 {
 #ifdef WIN32
   char tmpName[255];
-  static uint successes = 0, failures = 0;
+  static uint32_t successes = 0, failures = 0;
   RcoDumpGimconvOpts *opts = (RcoDumpGimconvOpts *) arg;
-  Bool ret;
+  uint8_t ret;
 
   if (failures <= 5 || successes > 0) {
 
@@ -115,26 +115,26 @@ dump_output_gimconv (char *dest, void *buf, rRCOEntry * entry, void *arg)
     if (entry->srcLenUnpacked > 0x28) {
       // dirty code - we'll leave here, since the internal converter will have
       // nicer code :P
-      uint32 *i32;
-      Bool es = FALSE;
+      uint32_t *i32;
+      uint8_t es = FALSE;
 
-      i32 = (uint32 *) buf;
+      i32 = (uint32_t *) buf;
       if (*i32 == 0x4D49472E)
 	es = TRUE;		// .GIM
 
       if (*i32 == 0x2E47494D || *i32 == 0x4D49472E) {
-	uint16 i, i2;
+	uint16_t i, i2;
 
-	i = *(uint16 *) ((char *) buf + 0x10);
-	i2 = *(uint16 *) ((char *) buf + 0x20);
+	i = *(uint16_t *) ((char *) buf + 0x10);
+	i2 = *(uint16_t *) ((char *) buf + 0x20);
 	if (es) {
 	  i = ENDIAN_SWAP (i);
 	  i2 = ENDIAN_SWAP (i2);
 	}
 	if (i == 2 && i2 == 3) {
-	  uint32 sz = *(uint32 *) ((char *) buf + 0x14), sz2;
+	  uint32_t sz = *(uint32_t *) ((char *) buf + 0x14), sz2;
 
-	  i32 = (uint32 *) ((char *) buf + 0x24);
+	  i32 = (uint32_t *) ((char *) buf + 0x24);
 	  sz2 = *i32;
 	  if (es) {
 	    sz = ENDIAN_SWAP (sz);
@@ -189,7 +189,7 @@ dump_output_gimconv (char *dest, void *buf, rRCOEntry * entry, void *arg)
 #endif
 }
 
-Bool
+uint8_t
 dump_output_vsmxdec (char *dest, void *buf, rRCOEntry * entry, void *arg)
 {
   VsmxMem *vm = readVSMXMem (buf);
@@ -219,7 +219,7 @@ dump_resources (char *labels, rRCOEntry * parent, const RcoTableMap extMap,
     return;
 
   char fullOutName[MAX_FILENAME_LEN];
-  uint extMapLen = 0;
+  uint32_t extMapLen = 0;
   char dat[5] = "dat";
 
   strcpy (fullOutName, pathPrefix);
@@ -229,14 +229,14 @@ dump_resources (char *labels, rRCOEntry * parent, const RcoTableMap extMap,
     extMapLen++;
 
 #define MAX_LABEL_LEN 216
-  uint i;
+  uint32_t i;
   rRCOEntry *entry;
 
   for (entry = parent->firstChild; entry; entry = entry->next) {
     char *ext = (char *) dat;
 
     if (entry->id == RCO_TABLE_IMG || entry->id == RCO_TABLE_MODEL) {
-      uint fmt = ((rRCOImgModelEntry *) entry->extra)->format;
+      uint32_t fmt = ((rRCOImgModelEntry *) entry->extra)->format;
 
       if (fmt == RCO_IMG_GIM && outputFilterArg) {
 	ext = ((RcoDumpGimconvOpts *) outputFilterArg)->ext;
@@ -255,7 +255,7 @@ dump_resources (char *labels, rRCOEntry * parent, const RcoTableMap extMap,
 
     char *label = get_label_from_offset (labels, entry->labelOffset);
 
-    uint len = strlen (label);
+    uint32_t len = strlen (label);
 
     if (len > MAX_LABEL_LEN)
       len = MAX_LABEL_LEN;
@@ -291,7 +291,7 @@ dump_resources (char *labels, rRCOEntry * parent, const RcoTableMap extMap,
 
 	strcpy (outName + strlen (outName), ext);
 
-	uint origAddr = entry->srcAddr, origLen =
+	uint32_t origAddr = entry->srcAddr, origLen =
 	    entry->srcLen, origLenUnpacked = entry->srcLenUnpacked;
 	entry->srcLen = entry->srcLenUnpacked =
 	    ((rRCOSoundEntry *) entry->extra)->channelData[i * 2];
@@ -327,7 +327,7 @@ dump_resources (char *labels, rRCOEntry * parent, const RcoTableMap extMap,
      * strcpy(outName + len +1, ext);
      * 
      * // trick dump_resource() into doing what we want it to by fiddling with
-     * stuff uint origAddr = entry->srcAddr, origLen = entry->srcLen,
+     * stuff uint32_t origAddr = entry->srcAddr, origLen = entry->srcLen,
      * origLenUnpacked = entry->srcLenUnpacked; if(entry->id ==
      * RCO_TABLE_SOUND) { entry->srcLen = entry->srcLenUnpacked =
      * ((rRCOSoundEntry*)entry->extra)->channelData[j*2]; entry->srcAddr +=
@@ -350,8 +350,8 @@ dump_resources (char *labels, rRCOEntry * parent, const RcoTableMap extMap,
 }
 
 void
-dump_text_resources (char *labels, rRCOEntry * parent, Bool writeHeader,
-    char *pathPrefix, Bool bWriteXML)
+dump_text_resources (char *labels, rRCOEntry * parent, uint8_t writeHeader,
+    char *pathPrefix, uint8_t bWriteXML)
 {
   if (!parent || !parent->numSubentries)
     return;
@@ -360,7 +360,7 @@ dump_text_resources (char *labels, rRCOEntry * parent, Bool writeHeader,
   char fullOutName[MAX_FILENAME_LEN];
 
 #define MAX_LABEL_LEN 216
-  uint i;
+  uint32_t i;
   rRCOEntry *entry;
 
   for (entry = parent->firstChild; entry; entry = entry->next) {
@@ -435,14 +435,14 @@ dump_text_resources (char *labels, rRCOEntry * parent, Bool writeHeader,
 
     for (i = 0; i < textEntry->numIndexes; i++) {
       RCOTextIndex *idx = &(textEntry->indexes[i]);
-      uint len = strlen (get_label_from_offset (labels, idx->labelOffset));
-      uint dataLen = 0;
+      uint32_t len = strlen (get_label_from_offset (labels, idx->labelOffset));
+      uint32_t dataLen = 0;
 
       if (len > MAX_LABEL_LEN)
 	len = MAX_LABEL_LEN;
 
       if (idx->length) {
-	uint charWidth = RCO_TEXT_FMT_CHARWIDTH (textEntry->format);
+	uint32_t charWidth = RCO_TEXT_FMT_CHARWIDTH (textEntry->format);
 
 	dataLen = idx->length;
 	if (idx->length >= charWidth) {
@@ -467,17 +467,17 @@ dump_text_resources (char *labels, rRCOEntry * parent, Bool writeHeader,
 	}
 	if (writeHeader) {
 	  if (textEntry->format == RCO_TEXT_FMT_UTF32) {
-	    uint32 bom = UTF32_BOM;
+	    uint32_t bom = UTF32_BOM;
 
 	    if (parent->rco->eSwap)
 	      bom = ENDIAN_SWAP (bom);
 	    filewrite (fp, &bom, sizeof (bom));
 	  } else if (textEntry->format == RCO_TEXT_FMT_UTF8) {
-	    uint32 bom = UTF8_BOM;
+	    uint32_t bom = UTF8_BOM;
 
 	    filewrite (fp, &bom, 3);
 	  } else {
-	    uint16 bom = UTF16_BOM;
+	    uint16_t bom = UTF16_BOM;
 
 	    if (parent->rco->eSwap)
 	      bom = ENDIAN_SWAP (bom);
@@ -490,7 +490,7 @@ dump_text_resources (char *labels, rRCOEntry * parent, Bool writeHeader,
 	fclose (fp);
       } else {
 	char *bufIn = textBuffer + idx->offset;
-	Bool useCdata = (memchr (bufIn, '<', dataLen)
+	uint8_t useCdata = (memchr (bufIn, '<', dataLen)
 	    || memchr (bufIn, '>', dataLen)
 	    || memchr (bufIn, '&', dataLen));
 
@@ -501,22 +501,22 @@ dump_text_resources (char *labels, rRCOEntry * parent, Bool writeHeader,
 
 	char buf[4096];
 	char *bufOut = buf;
-	uint outBufLen = 4096;
+	uint32_t outBufLen = 4096;
 
-	/* { // feed in the BOM (is it really necessary though?) uint number;
+	/* { // feed in the BOM (is it really necessary though?) uint32_t number;
 	 * char* unicodePtr; if(textEntry->format == RCO_TEXT_FMT_UTF32) {
-	 * uint32 bom = UTF32_BOM; if(parent->rco->eSwap) bom =
+	 * uint32_t bom = UTF32_BOM; if(parent->rco->eSwap) bom =
 	 * ENDIAN_SWAP(bom); number = sizeof(bom); unicodePtr = (char*)&bom;
 	 * iconv(ic, (const char**)(&unicodePtr), (size_t*)(&number), &bufOut,
 	 * (size_t*)(&outBufLen)); } else if(textEntry->format ==
-	 * RCO_TEXT_FMT_UTF8) { uint32 bom = UTF8_BOM; number = 3; unicodePtr = 
+	 * RCO_TEXT_FMT_UTF8) { uint32_t bom = UTF8_BOM; number = 3; unicodePtr = 
 	 * (char*)&bom; iconv(ic, (const char**)(&unicodePtr),
-	 * (size_t*)(&number), &bufOut, (size_t*)(&outBufLen)); } else { uint16 
+	 * (size_t*)(&number), &bufOut, (size_t*)(&outBufLen)); } else { uint16_t 
 	 * bom = UTF16_BOM; if(parent->rco->eSwap) bom = ENDIAN_SWAP(bom);
 	 * number = sizeof(bom); unicodePtr = (char*)&bom; iconv(ic, (const
 	 * char**)(&unicodePtr), (size_t*)(&number), &bufOut,
 	 * (size_t*)(&outBufLen)); } } */
-	uint nullsStripped = 0;
+	uint32_t nullsStripped = 0;
 
 	while (dataLen) {
 	  iconv (ic, (&bufIn), (size_t *) (&dataLen), &bufOut,
@@ -618,7 +618,7 @@ compile_vagconv_map (rRCOFile * rco, rRCOEntry * entry, void *arg)
   if (entry->srcFile[0] && entry->srcAddr == 0 &&
       entry->srcCompression == RCO_DATA_COMPRESSION_NONE &&
       !strcasecmp (entry->srcFile + strlen (entry->srcFile) - 4, ".wav")) {
-    uint len;
+    uint32_t len;
     int i;
 
     rse->channels = wav2vag (entry->srcFile, &len, &entry->srcBuffer, "");
@@ -633,7 +633,7 @@ compile_vagconv_map (rRCOFile * rco, rRCOEntry * entry, void *arg)
 
     if (!rse->channelData)
       rse->channelData =
-	  (uint32 *) malloc (rse->channels * sizeof (uint32) * 2);
+	  (uint32_t *) malloc (rse->channels * sizeof (uint32_t) * 2);
     for (i = 0; i < rse->channels; i++) {
       rse->channelData[i * 2] = len;
       rse->channelData[i * 2 + 1] = len * i;
@@ -676,7 +676,7 @@ compile_wavcheck_map (rRCOFile * rco, rRCOEntry * entry, void *arg)
 	get_label_from_offset (rco->labels, entry->labelOffset));
 }
 
-Bool
+uint8_t
 exec_gimconv (char *cmd, char *src, char *dest, char *extFlags)
 {
 #ifdef WIN32

@@ -10,20 +10,20 @@
 
 #define IMP(a,b) (!(a) || (b))	// logical implication, ie, a implies b
 
-void xmlwrite_entry (rRCOEntry * entry, uint depth, rRCOFile * rco, FILE * fp,
-    char *textDir, Bool textXmlOut, int sndDumped, Bool vsmxConv);
-void xmlwrite_entry_extra_object (uint16 type, uint8 * info, rRCOFile * rco,
+void xmlwrite_entry (rRCOEntry * entry, uint32_t depth, rRCOFile * rco, FILE * fp,
+    char *textDir, uint8_t textXmlOut, int sndDumped, uint8_t vsmxConv);
+void xmlwrite_entry_extra_object (uint16_t type, uint8_t * info, rRCOFile * rco,
     FILE * fp);
-void xmlwrite_entry_extra_anim (uint16 type, uint8 * info, rRCOFile * rco,
+void xmlwrite_entry_extra_anim (uint16_t type, uint8_t * info, rRCOFile * rco,
     FILE * fp);
 
 void xml_fputref (rRCORef * ref, rRCOFile * rco, FILE * fp);
 
 void rcoxml_fput_escstr (FILE * fp, char *str);
 
-Bool
-write_xml (rRCOFile * rco, FILE * fp, char *textDir, Bool textXmlOut,
-    int sndDumped, Bool vsmxConv)
+uint8_t
+write_xml (rRCOFile * rco, FILE * fp, char *textDir, uint8_t textXmlOut,
+    int sndDumped, uint8_t vsmxConv)
 {
 
   fputs ("<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>\n", fp);
@@ -75,15 +75,15 @@ write_xml (rRCOFile * rco, FILE * fp, char *textDir, Bool textXmlOut,
 }
 
 void
-xmlwrite_entry (rRCOEntry * entry, uint depth, rRCOFile * rco, FILE * fp,
-    char *textDir, Bool textXmlOut, int sndDumped, Bool vsmxConv)
+xmlwrite_entry (rRCOEntry * entry, uint32_t depth, rRCOFile * rco, FILE * fp,
+    char *textDir, uint8_t textXmlOut, int sndDumped, uint8_t vsmxConv)
 {
-  uint i;
+  uint32_t i;
   char dummy[50] = "\0";
   char *tagName = dummy;
 
   if (entry->id < RCOXML_TABLE_TAGS_NUM) {
-    uint maxType = 0;
+    uint32_t maxType = 0;
 
     while (RCOXML_TABLE_TAGS[entry->id][maxType][0])
       maxType++;
@@ -125,7 +125,7 @@ xmlwrite_entry (rRCOEntry * entry, uint depth, rRCOFile * rco, FILE * fp,
     fputc ('\t', fp);
   fprintf (fp, "<%s", tagName);
 
-  Bool isMainTable = (entry->type == 0 || (entry->id == RCO_TABLE_MAIN &&
+  uint8_t isMainTable = (entry->type == 0 || (entry->id == RCO_TABLE_MAIN &&
 	  entry->type == 1));
   // if(isMainTable)
   // fputs("Table", fp);
@@ -161,14 +161,14 @@ xmlwrite_entry (rRCOEntry * entry, uint depth, rRCOFile * rco, FILE * fp,
   // extra attribs
   if (isMainTable) {
     /* 
-     * // pointer ordering uint numPtrs = 0; void* ptrs; switch(entry->id) {
+     * // pointer ordering uint32_t numPtrs = 0; void* ptrs; switch(entry->id) {
      * case RCO_TABLE_TEXT: ptrs = rco->ptrText; numPtrs = rco->numPtrText;
      * break; case RCO_TABLE_IMG: ptrs = rco->ptrImg; numPtrs = rco->numPtrImg;
      * break; case RCO_TABLE_SOUND: ptrs = rco->ptrSound; numPtrs =
      * rco->numPtrSound; break; case RCO_TABLE_MODEL: ptrs = rco->ptrModel;
      * numPtrs = rco->numPtrModel; break; case RCO_TABLE_OBJ: ptrs =
      * rco->ptrObj; numPtrs = rco->numPtrObj; break; case RCO_TABLE_ANIM: ptrs = 
-     * rco->ptrAnim; numPtrs = rco->numPtrAnim; break; } if(numPtrs) { uint j;
+     * rco->ptrAnim; numPtrs = rco->numPtrAnim; break; } if(numPtrs) { uint32_t j;
      * fputs(" ptrorder=\"", fp); for(i=0; i<numPtrs; i++) { if(i) fputs(",",
      * fp);
      * 
@@ -200,7 +200,7 @@ xmlwrite_entry (rRCOEntry * entry, uint depth, rRCOFile * rco, FILE * fp,
 	  rcoxml_int_to_text (te->format, RCOXML_TABLE_TEXT_FMT, tmp);
 	  fprintf (fp, " format=\"%s\"", tmp);
 	  if (te->numIndexes && !textXmlOut) {	// write text labels
-	    uint j;
+	    uint32_t j;
 
 	    fputs (" entries=\"", fp);
 	    for (i = 0; i < te->numIndexes; i++) {
@@ -278,11 +278,11 @@ xmlwrite_entry (rRCOEntry * entry, uint depth, rRCOFile * rco, FILE * fp,
 	}
 	break;
       case RCO_TABLE_OBJ:
-	xmlwrite_entry_extra_object (entry->type, (uint8 *) entry->extra, rco,
+	xmlwrite_entry_extra_object (entry->type, (uint8_t *) entry->extra, rco,
 	    fp);
 	break;
       case RCO_TABLE_ANIM:
-	xmlwrite_entry_extra_anim (entry->type, (uint8 *) entry->extra, rco,
+	xmlwrite_entry_extra_anim (entry->type, (uint8_t *) entry->extra, rco,
 	    fp);
 	break;
     }
@@ -313,7 +313,7 @@ xmlwrite_entry (rRCOEntry * entry, uint depth, rRCOFile * rco, FILE * fp,
 }
 
 void
-xmlwrite_entry_extra_object (uint16 type, uint8 * info, rRCOFile * rco,
+xmlwrite_entry_extra_object (uint16_t type, uint8_t * info, rRCOFile * rco,
     FILE * fp)
 {
 
@@ -329,7 +329,7 @@ xmlwrite_entry_extra_object (uint16 type, uint8 * info, rRCOFile * rco,
 							// increase twice for a 
 							// reference
     // is this entry a reference?
-    Bool isRef = RCO_OBJ_IS_REF (type, i2);
+    uint8_t isRef = RCO_OBJ_IS_REF (type, i2);
 
     // if(i2) fputc(' ', fp); // space if not first param
     fputc (' ', fp);
@@ -380,9 +380,9 @@ xmlwrite_entry_extra_object (uint16 type, uint8 * info, rRCOFile * rco,
       if (RCO_OBJ_EXTRA_TYPES[type][i2] == RCO_OBJ_EXTRA_TYPE_FLOAT)
 	fprintf (fp, "%g", *(float *) info);
       else
-	fprintf (fp, "0x%x", *(uint32 *) info);
+	fprintf (fp, "0x%x", *(uint32_t *) info);
 
-      info += sizeof (uint32);	// or sizeof(float)
+      info += sizeof (uint32_t);	// or sizeof(float)
     }
 
     fputs ("\"", fp);
@@ -393,7 +393,7 @@ xmlwrite_entry_extra_object (uint16 type, uint8 * info, rRCOFile * rco,
 }
 
 void
-xmlwrite_entry_extra_anim (uint16 type, uint8 * info, rRCOFile * rco, FILE * fp)
+xmlwrite_entry_extra_anim (uint16_t type, uint8_t * info, rRCOFile * rco, FILE * fp)
 {
 
   int numEntries = RCO_ANIM_EXTRA_LEN[type];
@@ -408,7 +408,7 @@ xmlwrite_entry_extra_anim (uint16 type, uint8 * info, rRCOFile * rco, FILE * fp)
 							// increase twice for a 
 							// reference
     // is this entry a reference?
-    Bool isRef = RCO_ANIM_IS_REF (type, i2);
+    uint8_t isRef = RCO_ANIM_IS_REF (type, i2);
 
     // if(i2) fputc(' ', fp); // space if not first param
     fputc (' ', fp);
@@ -459,9 +459,9 @@ xmlwrite_entry_extra_anim (uint16 type, uint8 * info, rRCOFile * rco, FILE * fp)
       if (RCO_ANIM_EXTRA_TYPES[type][i2] == RCO_OBJ_EXTRA_TYPE_FLOAT)
 	fprintf (fp, "%g", *(float *) info);
       else
-	fprintf (fp, "0x%x", *(uint32 *) info);
+	fprintf (fp, "0x%x", *(uint32_t *) info);
 
-      info += sizeof (uint32);	// or sizeof(float)
+      info += sizeof (uint32_t);	// or sizeof(float)
     }
 
     fputs ("\"", fp);
@@ -472,7 +472,7 @@ xmlwrite_entry_extra_anim (uint16 type, uint8 * info, rRCOFile * rco, FILE * fp)
 }
 
 /* 
- * void xmlwrite_entry_extra_anim(uint16 type, uint8* info, rRCOFile* rco,
+ * void xmlwrite_entry_extra_anim(uint16_t type, uint8_t* info, rRCOFile* rco,
  * FILE* fp) { int numEntries = RCO_ANIM_EXTRA_LEN[type]; int i;
  * 
  * if(numEntries < 1) return; // TODO: handle unknown anim types?
@@ -492,16 +492,16 @@ xmlwrite_entry_extra_anim (uint16 type, uint8 * info, rRCOFile * rco, FILE * fp)
  * break; } fprintf(fp, "%d", i); } fputs("=\"", fp);
  * 
  * if(RCO_ANIM_EXTRA_TYPES[type][i] == RCO_OBJ_EXTRA_TYPE_FLOAT) fprintf(fp,
- * "%g", *(float*)info); else fprintf(fp, "0x%x", *(uint32*)info);
+ * "%g", *(float*)info); else fprintf(fp, "0x%x", *(uint32_t*)info);
  * 
- * info += sizeof(uint32); // or sizeof(float)
+ * info += sizeof(uint32_t); // or sizeof(float)
  * 
  * fputs("\"", fp); } } */
 
 void
 xml_fputref (rRCORef * ref, rRCOFile * rco, FILE * fp)
 {
-  Bool unkType = FALSE;
+  uint8_t unkType = FALSE;
 
   switch (ref->type) {
     case RCO_REF_EVENT:
@@ -556,9 +556,9 @@ xml_fputref (rRCORef * ref, rRCOFile * rco, FILE * fp)
 }
 
 void
-rcoxml_int_to_text (uint in, const RcoTableMap map, char *out)
+rcoxml_int_to_text (uint32_t in, const RcoTableMap map, char *out)
 {
-  uint len = 0;
+  uint32_t len = 0;
 
   // determine length of map
   while (map[len][0])

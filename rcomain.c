@@ -3,7 +3,7 @@
 #include <string.h>
 #include "rcomain.h"
 
-Bool suppressDecompWarnings = FALSE;
+uint8_t suppressDecompWarnings = FALSE;
 
 void
 free_rco (rRCOFile * f)
@@ -28,7 +28,7 @@ rco_map_func (rRCOFile * rco, rRCOEntry * parent, void *arg,
 }
 
 char *
-get_label_from_offset (char *labels, uint labelOffset)
+get_label_from_offset (char *labels, uint32_t labelOffset)
 {
   static char labelBuf[255];
 
@@ -50,7 +50,7 @@ get_label_from_offset (char *labels, uint labelOffset)
  * parent->subentries = (rRCOEntry*)realloc(parent->subentries,
  * sizeof(rRCOEntry) * (parent->numSubentries+1)); if(pos == -1) dest =
  * &(parent->subentries[parent->numSubentries]); else { // shift things up by
- * one place dest = &(parent->subentries[pos]); uint numEntriesToMove =
+ * one place dest = &(parent->subentries[pos]); uint32_t numEntriesToMove =
  * parent->numSubentries - pos; //rRCOEntry* tmpBuffer = (rRCOEntry*)malloc()
  * memcpy(&(parent->subentries[pos+1]), &(parent->subentries[pos]),
  * numEntriesToMove * sizeof(rRCOEntry)); } }
@@ -77,7 +77,7 @@ rco_fix_decomp_sizes (rRCOFile * rco, rRCOEntry * entry)
 	fileread (fp, inBuf, entry->srcLen);
 	fclose (fp);
 
-	uint unpackedLen = zlib_unpacked_size (inBuf, entry->srcLen);
+	uint32_t unpackedLen = zlib_unpacked_size (inBuf, entry->srcLen);
 
 	if (unpackedLen != 0xFFFFFFFF) {
 	  if (entry->srcLenUnpacked != 0xFFFFFFFF &&
@@ -107,7 +107,7 @@ rco_fix_decomp_sizes (rRCOFile * rco, rRCOEntry * entry)
 }
 
 void *
-read_resource (rRCOEntry * entry, uint * outLen)
+read_resource (rRCOEntry * entry, uint32_t * outLen)
 {
   char *bufferMid;
 
@@ -140,7 +140,7 @@ read_resource (rRCOEntry * entry, uint * outLen)
       if (entry->srcAddr < sizeof (PRFHeader))
 	return NULL;
       PRFHeader header;
-      Bool eSwap;
+      uint8_t eSwap;
 
       fileread (src, &header, sizeof (header));
       eSwap = (header.signature == ENDIAN_SWAP_32 (RCO_SIGNATURE));
@@ -245,10 +245,10 @@ read_resource (rRCOEntry * entry, uint * outLen)
   return bufferMid;
 }
 
-uint
+uint32_t
 count_all_subentries (rRCOEntry * entry)
 {
-  uint entries = entry->numSubentries;
+  uint32_t entries = entry->numSubentries;
   rRCOEntry *rcoNode;
 
   for (rcoNode = entry->firstChild; rcoNode; rcoNode = rcoNode->next)
@@ -264,7 +264,7 @@ make_sorted_list_of_subentries (rRCOEntry * parent,
   rRCOEntry **children =
       (rRCOEntry **) malloc (parent->numSubentries * sizeof (rRCOEntry *));
   children[0] = parent->firstChild;
-  uint i;
+  uint32_t i;
 
   for (i = 1; i < parent->numSubentries; i++)
     children[i] = children[i - 1]->next;
@@ -300,7 +300,7 @@ find_text_from_label (char *labels, rRCOTextEntry * textExtra, const char *s)
   if (!textExtra->numIndexes)
     return -1;
 
-  uint i;
+  uint32_t i;
 
   for (i = 0; i < textExtra->numIndexes; i++) {
     if (!strcmp (labels + textExtra->indexes[i].labelOffset, s))
@@ -310,7 +310,7 @@ find_text_from_label (char *labels, rRCOTextEntry * textExtra, const char *s)
 }
 
 void
-make_iconv_charset (char out[8], int fmt, Bool es)
+make_iconv_charset (char out[8], int fmt, uint8_t es)
 {
   strcpy (out, "ucs-2le");
   if (es)
@@ -452,12 +452,12 @@ es_textComprInfo (TextComprInfo * tci)
 }
 
 void
-es_extraObjAnim (Bool isObj, int type, void *data, Bool isPS3)
+es_extraObjAnim (uint8_t isObj, int type, void *data, uint8_t isPS3)
 {
   if (type == 0)
     return;
 
-  uint len = 0;
+  uint32_t len = 0;
   const int *typeArray;
 
   if (isObj && type <= (int) RCO_OBJ_EXTRA_LEN_NUM) {
@@ -471,8 +471,8 @@ es_extraObjAnim (Bool isObj, int type, void *data, Bool isPS3)
   if (!len)
     return;
 
-  uint i = 0, i2 = 0;
-  uint32 *uData = (uint32 *) data;
+  uint32_t i = 0, i2 = 0;
+  uint32_t *uData = (uint32_t *) data;
 
 #define ENDIAN_SWAP_HALF32(x) (((x) & 0xFF) << 8 | ((x) & 0xFF00) >> 8 | ((x) & 0xFF0000) << 8 | ((x) & 0xFF000000) >> 8)
 

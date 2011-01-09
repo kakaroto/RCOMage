@@ -7,7 +7,7 @@ extern char *configDir;
 
 void configLoadTagmap (void);
 void configLoadMiscmap (void);
-void configLoadObjmap (Bool ps3);
-void configLoadAnimmap (Bool ps3);
+void configLoadObjmap (uint8_t ps3);
+void configLoadAnimmap (uint8_t ps3);
 
 #endif

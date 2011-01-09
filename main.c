@@ -38,13 +38,13 @@ int main_vagenc (void);
 int main_vsmxdec (void);
 int main_vsmxenc (void);
 
-void retrieve_from_opts (Bool warnUnk, int num, ...);
+void retrieve_from_opts (uint8_t warnUnk, int num, ...);
 
-Bool quietMode;
+uint8_t quietMode;
 int app_argc;
 char **app_argv;
 
-extern Bool suppressDecompWarnings;
+extern uint8_t suppressDecompWarnings;
 
 int
 main (int argc, char **argv)
@@ -228,7 +228,7 @@ main_help ()
 	  "  The following options only apply for extracting text resources.\n"
 	  "    --lang <lang>     Language of text to extract. [English]\n"
 	  "                      You can use a language ID or one of the following:\n");
-      uint i = 0;
+      uint32_t i = 0;
 
       while (RCOXML_TABLE_TEXT_LANG[i][0]) {
 	printf ("                       - %s (ID=%d)\n",
@@ -357,7 +357,7 @@ main_dump (void)
 
   char *sRcoFile = NULL;
   char *sXmlFile = NULL;
-  Bool sTextOutput = FALSE;
+  uint8_t sTextOutput = FALSE;
 
   // char curPath[] = ".";
   char *sResDir = NULL;
@@ -369,8 +369,8 @@ main_dump (void)
 
   // char* sConvGim = NULL;
   RcoDumpGimconvOpts gimconvOpts;
-  Bool sConvVag = FALSE;
-  Bool sConvVsmx = FALSE;
+  uint8_t sConvVag = FALSE;
+  uint8_t sConvVsmx = FALSE;
 
   int i;
 
@@ -420,7 +420,7 @@ main_dump (void)
     }
     // dump resources
     char textPathPrefix[MAX_FILENAME_LEN] = "\0";
-    Bool sndDumped = FALSE;
+    uint8_t sndDumped = FALSE;
 
     if ((!sResDir || strcmp (sResDir, "-"))
 	&& (rco->tblImage || rco->tblSound || rco->tblModel || rco->tblVSMX ||
@@ -532,8 +532,8 @@ main_dump (void)
     char *sResLabel = NULL;
     char *sOutFile = NULL;
     char *stTextLang = NULL;
-    uint sTextLang = 1;
-    Bool sTextNoHdr = FALSE;
+    uint32_t sTextLang = 1;
+    uint8_t sTextNoHdr = FALSE;
     int sSndChannel = 1;
 
     int i;
@@ -608,17 +608,17 @@ main_dump (void)
 	  if (fp) {
 	    if (!sTextNoHdr) {
 	      if (rte->format == RCO_TEXT_FMT_UTF32) {
-		uint32 bom = UTF32_BOM;
+		uint32_t bom = UTF32_BOM;
 
 		if (rco->eSwap)
 		  bom = ENDIAN_SWAP (bom);
 		filewrite (fp, &bom, sizeof (bom));
 	      } else if (rte->format == RCO_TEXT_FMT_UTF8) {
-		uint32 bom = UTF8_BOM;
+		uint32_t bom = UTF8_BOM;
 
 		filewrite (fp, &bom, 3);
 	      } else {
-		uint16 bom = UTF16_BOM;
+		uint16_t bom = UTF16_BOM;
 
 		if (rco->eSwap)
 		  bom = ENDIAN_SWAP (bom);
@@ -750,9 +750,9 @@ main_dump (void)
       char *sXmlFile = NULL;
       char *sRcoFile = NULL;
 
-      Bool sNoConvGim = FALSE;
-      Bool sNoConvVag = FALSE;
-      Bool sNoConvVsmx = FALSE;
+      uint8_t sNoConvGim = FALSE;
+      uint8_t sNoConvVag = FALSE;
+      uint8_t sNoConvVsmx = FALSE;
       RcoDumpGimconvOpts gimconvOpts;
 
       gimconvOpts.cmd = gimconvOpts.extFlags = NULL;
@@ -844,7 +844,7 @@ main_dump (void)
 	  if (app_argc < 4)
 	    MAIN_INV_CMD_SYNTAX;
 
-	  uint channels = app_argc - 3;
+	  uint32_t channels = app_argc - 3;
 	  int i;
 	  int *len = (int *) malloc (channels * sizeof (int));
 	  void **buf = (void **) malloc (channels * sizeof (void *));
@@ -880,7 +880,7 @@ main_dump (void)
 	      warning ("Unable to open file %s", app_argv[i]);
 	  }
 
-	  Bool success = vag2wav (app_argv[app_argc - 1], channels, len, buf);
+	  uint8_t success = vag2wav (app_argv[app_argc - 1], channels, len, buf);
 
 	  free (len);
 	  while (channels--)
@@ -899,8 +899,8 @@ main_dump (void)
 	  if (app_argc < 4)
 	    MAIN_INV_CMD_SYNTAX;
 
-	  uint i, channels;	// = app_argc-3;
-	  uint len;
+	  uint32_t i, channels;	// = app_argc-3;
+	  uint32_t len;
 	  void *buf;
 
 	  channels = wav2vag (app_argv[2], &len, &buf, "");
@@ -919,7 +919,7 @@ main_dump (void)
 	    }
 	    // trim .vag extension if autogenerating that
 	    if (app_argc - 3 == 1 && channels > 1) {
-	      uint nl = strlen (app_argv[3]);
+	      uint32_t nl = strlen (app_argv[3]);
 
 	      if (nl > MAX_FILENAME_LEN)
 		app_argv[3][MAX_FILENAME_LEN] = '\0';
@@ -927,7 +927,7 @@ main_dump (void)
 		app_argv[3][nl - 4] = '\0';
 	    }
 
-	    Bool writeStdout = !strcmp (app_argv[3], "-");
+	    uint8_t writeStdout = !strcmp (app_argv[3], "-");
 
 	    for (i = 0; i < channels; i++) {
 	      FILE *fp;
@@ -962,7 +962,7 @@ main_dump (void)
 	  if (app_argc < 4)
 	    MAIN_INV_CMD_SYNTAX;
 
-	  Bool doDecompile = FALSE;
+	  uint8_t doDecompile = FALSE;
 	  FILE *fin = NULL, *fout = NULL;
 
 	  retrieve_from_opts (TRUE, 1, "--decompile", "bool", &doDecompile);
@@ -1003,7 +1003,7 @@ main_dump (void)
 	  VsmxMem *vm = readVSMX (fin);
 
 	  fclose (fin);
-	  Bool success = FALSE;
+	  uint8_t success = FALSE;
 
 	  if (vm) {
 	    info ("Writing decoded output...");
@@ -1069,7 +1069,7 @@ main_dump (void)
 	  }
 	}
 
-	void retrieve_from_opts (Bool warnUnk, int num, ...) {
+	void retrieve_from_opts (uint8_t warnUnk, int num, ...) {
 	  int i, j;
 	  va_list ap;
 
@@ -1083,7 +1083,7 @@ main_dump (void)
 		  char *type = va_arg (ap, char *);
 
 		  if (!strcmp (type, "bool"))
-		    *(va_arg (ap, Bool *)) = TRUE;
+		    *(va_arg (ap, uint8_t *)) = TRUE;
 		  else if (i + 1 < app_argc) {
 		    app_argv[i] = NULL;
 		    char *val = app_argv[++i];

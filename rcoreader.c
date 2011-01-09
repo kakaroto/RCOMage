@@ -13,35 +13,35 @@
 // items used only when reading the file
 typedef struct {
   char *fName;
-  uint fSize;
-  uint fSizeExpanded;		// file size with decompressed header
+  uint32_t fSize;
+  uint32_t fSizeExpanded;		// file size with decompressed header
 
   void *tables;			// decompressed tables
-  uint tablesSize;
-  uint memPos;
-  uint memOffset;
+  uint32_t tablesSize;
+  uint32_t memPos;
+  uint32_t memOffset;
 
   FILE *fp;			// for uncompressed tables
 
-  uint32 *ptrsObj;
-  uint numObjPtrs;
-  uint32 *ptrsAnim;
-  uint numAnimPtrs;
+  uint32_t *ptrsObj;
+  uint32_t numObjPtrs;
+  uint32_t *ptrsAnim;
+  uint32_t numAnimPtrs;
 
-  Bool ps3;			// TRUE if PS3 RCO
+  uint8_t ps3;			// TRUE if PS3 RCO
 
 } rRCOFile_readhelper;
 
 void read_entry (rRCOFile_readhelper * rcoH, rRCOFile * rco, rRCOEntry * data,
-    Bool readSubEntries);
-rRCOEntry *find_entry_from_offset (rRCOEntry * parent, uint32 offset);
-Bool check_file_region (uint fSize, uint offset, uint size);
-uint rco_fread (rRCOFile_readhelper * rcoH, void *buf, uint len);
-uint rcoread_ftell (rRCOFile_readhelper * rcoH);
-int rcoread_fseek (rRCOFile_readhelper * rcoH, uint pos);
+    uint8_t readSubEntries);
+rRCOEntry *find_entry_from_offset (rRCOEntry * parent, uint32_t offset);
+uint8_t check_file_region (uint32_t fSize, uint32_t offset, uint32_t size);
+uint32_t rco_fread (rRCOFile_readhelper * rcoH, void *buf, uint32_t len);
+uint32_t rcoread_ftell (rRCOFile_readhelper * rcoH);
+int rcoread_fseek (rRCOFile_readhelper * rcoH, uint32_t pos);
 
 void fix_refs (rRCOFile * rco, rRCOEntry * entry, const int *lenArray,
-    const uint lenNum, Bool isObj);
+    const uint32_t lenNum, uint8_t isObj);
 
 rRCOFile *
 read_rco (char *fn)
@@ -273,7 +273,7 @@ read_rco (char *fn)
 	  error ("[text-data] Size of text data exceeds sane limits.");
 	  return NULL;
 	}
-	uint oldSize = rcoH.tablesSize;
+	uint32_t oldSize = rcoH.tablesSize;
 
 	rcoH.tablesSize += ALIGN_TO_4 (tci.unpackedLen);
 	rcoH.tables = realloc (rcoH.tables, rcoH.tablesSize);
@@ -366,10 +366,10 @@ read_rco (char *fn)
 					warning("[%s] Total data length (%d) exceeds safety limit of 16MB - data has been truncated!", s, hl); \
 					hl = MAX_LABEL_DATA; \
 				} \
-				dl = (hl) / sizeof(uint32); \
-				hl = (dl) * sizeof(uint32); \
+				dl = (hl) / sizeof(uint32_t); \
+				hl = (dl) * sizeof(uint32_t); \
 				if(dl) { \
-					dp = (uint32*)malloc(hl); \
+					dp = (uint32_t*)malloc(hl); \
 					rcoread_fseek(&rcoH, hp); \
 					rco_fread(&rcoH, dp, hl); \
 				} \
@@ -610,7 +610,7 @@ read_rco (char *fn)
 
 void
 read_entry (rRCOFile_readhelper * rcoH, rRCOFile * rco, rRCOEntry * data,
-    Bool readSubEntries)
+    uint8_t readSubEntries)
 {
 
   data->offset = rcoread_ftell (rcoH);
@@ -661,7 +661,7 @@ read_entry (rRCOFile_readhelper * rcoH, rRCOFile * rco, rRCOEntry * data,
   data->extra = 0;
   data->srcBuffer = NULL;
   // data->extraSize = 0;
-  uint extraSize = 0;
+  uint32_t extraSize = 0;
 
   {
     // cbf checking for file exhaustion here - just let read calls fail
@@ -747,7 +747,7 @@ read_entry (rRCOFile_readhelper * rcoH, rRCOFile * rco, rRCOEntry * data,
 		data->offset, ((rRCOTextEntry *) data->extra)->numIndexes);
 	    dest->numIndexes = MAX_SUBENTRIES;
 	  }
-	  uint readAmt = dest->numIndexes * sizeof (RCOTextIndex);
+	  uint32_t readAmt = dest->numIndexes * sizeof (RCOTextIndex);
 
 	  extraSize = sizeof (RCOTextEntry) + readAmt;
 	  dest->indexes = (RCOTextIndex *) malloc (readAmt);
@@ -758,7 +758,7 @@ read_entry (rRCOFile_readhelper * rcoH, rRCOFile * rco, rRCOEntry * data,
 	    return;
 	  }
 	  if (rco->eSwap) {	// endian swap all indexes
-	    uint i;
+	    uint32_t i;
 
 	    for (i = 0; i < dest->numIndexes; i++)
 	      es_rcoTextIndex (dest->indexes + i);
@@ -777,10 +777,10 @@ read_entry (rRCOFile_readhelper * rcoH, rRCOFile * rco, rRCOEntry * data,
       case RCO_TABLE_MODEL:
 	if (data->type == 1) {
 	  RCOImgModelEntry rie;
-	  uint rimeSize =
+	  uint32_t rimeSize =
 	      (rco->
 	      ps3 ? sizeof (RCOPS3ImgModelEntry) : sizeof (RCOImgModelEntry));
-	  uint16 compression;
+	  uint16_t compression;
 
 	  extraSize = rimeSize;
 
@@ -789,7 +789,7 @@ read_entry (rRCOFile_readhelper * rcoH, rRCOFile * rco, rRCOEntry * data,
 	  // urgh, this is a bit of an ugly hack - these short entries are
 	  // something I didn't know about before :/
 
-	  if (rco_fread (rcoH, &rie, sizeof (uint32))) {
+	  if (rco_fread (rcoH, &rie, sizeof (uint32_t))) {
 	    compression = rie.compression;
 	    if (rco->eSwap)
 	      compression = ENDIAN_SWAP (compression);
@@ -801,7 +801,7 @@ read_entry (rRCOFile_readhelper * rcoH, rRCOFile * rco, rRCOEntry * data,
 	      // image entry)
 	      if (!re.nextEntryOffset ||
 		  re.nextEntryOffset < sizeof (RCOEntry) + rimeSize)
-		extraSize -= sizeof (uint32);
+		extraSize -= sizeof (uint32_t);
 	    }
 	  } else {
 	    error
@@ -811,8 +811,8 @@ read_entry (rRCOFile_readhelper * rcoH, rRCOFile * rco, rRCOEntry * data,
 	  }
 
 	  if (rco->ps3) {
-	    if (!rco_fread (rcoH, (uint8 *) (&rie) + sizeof (uint32),
-		    sizeof (uint32) * 3)) {
+	    if (!rco_fread (rcoH, (uint8_t *) (&rie) + sizeof (uint32_t),
+		    sizeof (uint32_t) * 3)) {
 	      error
 		  ("[entry (0x%x)] Unable to read entry extra data - file exhausted.",
 		  data->offset);
@@ -824,10 +824,10 @@ read_entry (rRCOFile_readhelper * rcoH, rRCOFile * rco, rRCOEntry * data,
 		  data->offset, ENDIAN_SWAP (rie.sizeUnpacked));
 	    rie.sizeUnpacked = rie.sizePacked;
 	    if (compression) {
-	      rco_fread (rcoH, &rie.sizeUnpacked, sizeof (uint32));
+	      rco_fread (rcoH, &rie.sizeUnpacked, sizeof (uint32_t));
 	    }
-	  } else if (!rco_fread (rcoH, (uint8 *) (&rie) + sizeof (uint32),
-		  extraSize - sizeof (uint32))) {
+	  } else if (!rco_fread (rcoH, (uint8_t *) (&rie) + sizeof (uint32_t),
+		  extraSize - sizeof (uint32_t))) {
 	    error
 		("[entry (0x%x)] Unable to read entry extra data - file exhausted.",
 		data->offset);
@@ -836,17 +836,17 @@ read_entry (rRCOFile_readhelper * rcoH, rRCOFile * rco, rRCOEntry * data,
 
 	  /* 
 	   * // dirty hack for reading PS3 stuff if(rco->ps3 && extraSize ==
-	   * rimeSize) extraSize -= sizeof(uint32);
+	   * rimeSize) extraSize -= sizeof(uint32_t);
 	   * 
-	   * if(!rco_fread(rcoH, (uint8*)(&rie) +sizeof(uint32), extraSize -
-	   * sizeof(uint32))) { error("[entry (0x%x)] Unable to read entry
+	   * if(!rco_fread(rcoH, (uint8_t*)(&rie) +sizeof(uint32_t), extraSize -
+	   * sizeof(uint32_t))) { error("[entry (0x%x)] Unable to read entry
 	   * extra data - file exhausted.", data->offset); return; }
 	   * if(rco->ps3 && rie.sizeUnpacked != ENDIAN_SWAP_32(1))
 	   * warning("[entry (0x%x)] Unexpected value 0x%x for PS3 image -
 	   * expected 0x1.", data->offset, ENDIAN_SWAP(rie.sizeUnpacked));
-	   * if(rco->ps3 && compression && extraSize + sizeof(uint32) ==
-	   * rimeSize) { extraSize += sizeof(uint32); rco_fread(rcoH,
-	   * &rie.sizeUnpacked, sizeof(uint32)); // TODO: (fix this?) ignore
+	   * if(rco->ps3 && compression && extraSize + sizeof(uint32_t) ==
+	   * rimeSize) { extraSize += sizeof(uint32_t); rco_fread(rcoH,
+	   * &rie.sizeUnpacked, sizeof(uint32_t)); // TODO: (fix this?) ignore
 	   * the weird unknown entry for now } */
 	  if (rco->eSwap)
 	    es_rcoImgModelEntry (&rie);
@@ -895,11 +895,11 @@ read_entry (rRCOFile_readhelper * rcoH, rRCOFile * rco, rRCOEntry * data,
 	  ((rRCOSoundEntry *) data->extra)->format = rse.format;
 	  ((rRCOSoundEntry *) data->extra)->channels = rse.channels;
 	  // alloc & read channels (max = 65535, so don't bother checking)
-	  uint readAmt = rse.channels * 2 * sizeof (uint32);
+	  uint32_t readAmt = rse.channels * 2 * sizeof (uint32_t);
 
 	  extraSize = sizeof (RCOSoundEntry) + readAmt;
 	  ((rRCOSoundEntry *) data->extra)->channelData =
-	      (uint32 *) malloc (readAmt);
+	      (uint32_t *) malloc (readAmt);
 	  if (!rco_fread (rcoH, ((rRCOSoundEntry *) data->extra)->channelData,
 		  readAmt)) {
 	    error
@@ -907,12 +907,12 @@ read_entry (rRCOFile_readhelper * rcoH, rRCOFile * rco, rRCOEntry * data,
 		data->offset);
 	    return;
 	  }
-	  uint i;
+	  uint32_t i;
 
 	  if (rco->eSwap) {
-	    uint32 *cd = ((rRCOSoundEntry *) data->extra)->channelData;
+	    uint32_t *cd = ((rRCOSoundEntry *) data->extra)->channelData;
 
-	    for (i = 0; i < (uint) rse.channels * 2; i++)
+	    for (i = 0; i < (uint32_t) rse.channels * 2; i++)
 	      cd[i] = ENDIAN_SWAP (cd[i]);
 	  }
 	  // make offsets relative
@@ -926,19 +926,19 @@ read_entry (rRCOFile_readhelper * rcoH, rRCOFile * rco, rRCOEntry * data,
 	    // defined (no clear indication of size otherwise)
 	    for (i = rse.channels; i < 2; i++) {
 	      struct {
-		uint32 size;
-		uint32 offset;
+		uint32_t size;
+		uint32_t offset;
 	      } p;
 
 	      // not sure if there's padding, so just read things one by one
-	      rco_fread (rcoH, &(p.size), sizeof (uint32));
-	      rco_fread (rcoH, &(p.offset), sizeof (uint32));
+	      rco_fread (rcoH, &(p.size), sizeof (uint32_t));
+	      rco_fread (rcoH, &(p.offset), sizeof (uint32_t));
 	      if (p.size || p.offset != RCO_NULL_PTR)
 		warning
 		    ("[entry (0x%x)] Unexpected values found in sound entry data where null channels were expected.",
 		    data->offset);
 
-	      extraSize += sizeof (uint32) * 2;
+	      extraSize += sizeof (uint32_t) * 2;
 	    }
 	  }
 	} else if (data->type != 0)
@@ -977,7 +977,7 @@ read_entry (rRCOFile_readhelper * rcoH, rRCOFile * rco, rRCOEntry * data,
 
       case RCO_TABLE_OBJ:
 	if (data->type > 0) {
-	  uint entrySize = 0;
+	  uint32_t entrySize = 0;
 
 	  // determine size of entry from object type
 	  if (data->type <= (int) RCO_OBJ_EXTRA_LEN_NUM &&
@@ -1014,7 +1014,7 @@ read_entry (rRCOFile_readhelper * rcoH, rRCOFile * rco, rRCOEntry * data,
 
       case RCO_TABLE_ANIM:
 	if (data->type > 1) {
-	  uint entrySize = 0;
+	  uint32_t entrySize = 0;
 
 	  // determine size of entry from anim type
 	  if (data->type <= RCO_ANIM_EXTRA_LEN_NUM &&
@@ -1058,7 +1058,7 @@ read_entry (rRCOFile_readhelper * rcoH, rRCOFile * rco, rRCOEntry * data,
 
   // process subentries
   if (readSubEntries && data->numSubentries) {
-    uint i;
+    uint32_t i;
 
     if (data->numSubentries > MAX_SUBENTRIES) {
       warning
@@ -1067,7 +1067,7 @@ read_entry (rRCOFile_readhelper * rcoH, rRCOFile * rco, rRCOEntry * data,
       data->numSubentries = MAX_SUBENTRIES;
     }
 
-    uint curFPos = data->offset + sizeof (re) + extraSize;
+    uint32_t curFPos = data->offset + sizeof (re) + extraSize;
     rRCOEntry *rcoNode = (rRCOEntry *) malloc (sizeof (rRCOEntry));
 
     data->firstChild = rcoNode;
@@ -1129,7 +1129,7 @@ read_entry (rRCOFile_readhelper * rcoH, rRCOFile * rco, rRCOEntry * data,
 // linear/recursive search - not the fastest, but eh, performance isn't that
 // much of an issue
 rRCOEntry *
-find_entry_from_offset (rRCOEntry * parent, uint32 offset)
+find_entry_from_offset (rRCOEntry * parent, uint32_t offset)
 {
   if (parent->offset == offset)
     return parent;
@@ -1148,40 +1148,40 @@ find_entry_from_offset (rRCOEntry * parent, uint32 offset)
 
 void
 fix_refs (rRCOFile * rco, rRCOEntry * entry, const int *lenArray,
-    const uint lenNum, Bool isObj)
+    const uint32_t lenNum, uint8_t isObj)
 {
-  uint i, i2;
+  uint32_t i, i2;
 
   // only fix refs if type is known, and not the main object(0x800)/anim(0x900) 
   // table
   if (entry->type != 0 && entry->type <= (int) lenNum &&
       lenArray[entry->type] != -1) {
 
-    uint destSize = lenArray[entry->type] * sizeof (uint32);
+    uint32_t destSize = lenArray[entry->type] * sizeof (uint32_t);
 
     if (isObj) {
-      for (i = 0, i2 = 0; i < (uint) RCO_OBJ_EXTRA_LEN[entry->type]; i++, i2++)
+      for (i = 0, i2 = 0; i < (uint32_t) RCO_OBJ_EXTRA_LEN[entry->type]; i++, i2++)
 	if (RCO_OBJ_IS_REF (entry->type, i2)) {
-	  destSize -= sizeof (uint32) * 2;	// size of ref source
+	  destSize -= sizeof (uint32_t) * 2;	// size of ref source
 	  destSize += sizeof (rRCORef);
 	  i++;
 	}
     } else {
-      /* if(RCO_ANIM_EXTRA_REFS[entry->type]) { destSize -= sizeof(uint32)*2;
+      /* if(RCO_ANIM_EXTRA_REFS[entry->type]) { destSize -= sizeof(uint32_t)*2;
        * // size of ref source destSize += sizeof(rRCORef); } */
-      for (i = 0, i2 = 0; i < (uint) RCO_ANIM_EXTRA_LEN[entry->type]; i++, i2++)
+      for (i = 0, i2 = 0; i < (uint32_t) RCO_ANIM_EXTRA_LEN[entry->type]; i++, i2++)
 	if (RCO_ANIM_IS_REF (entry->type, i2)) {
-	  destSize -= sizeof (uint32) * 2;	// size of ref source
+	  destSize -= sizeof (uint32_t) * 2;	// size of ref source
 	  destSize += sizeof (rRCORef);
 	  i++;
 	}
     }
 
     void *dest = malloc (destSize);
-    uint8 *destPtr = (uint8 *) dest;
+    uint8_t *destPtr = (uint8_t *) dest;
 
-    for (i = 0, i2 = 0; i < (uint) lenArray[entry->type]; i++, i2++) {
-      Bool cond;
+    for (i = 0, i2 = 0; i < (uint32_t) lenArray[entry->type]; i++, i2++) {
+      uint8_t cond;
 
       if (isObj)
 	cond = (RCO_OBJ_IS_REF (entry->type, i2));
@@ -1189,7 +1189,7 @@ fix_refs (rRCOFile * rco, rRCOEntry * entry, const int *lenArray,
 	cond = (RCO_ANIM_IS_REF (entry->type, i2));
       // cond = (RCO_ANIM_EXTRA_REFS[entry->type] && i == 0);
       if (cond) {
-	RCOReference *ref = (RCOReference *) ((uint8 *) entry->extra + i * 4);
+	RCOReference *ref = (RCOReference *) ((uint8_t *) entry->extra + i * 4);
 	rRCORef *newRef = (rRCORef *) destPtr;
 
 	newRef->type = ref->type;
@@ -1236,8 +1236,8 @@ fix_refs (rRCOFile * rco, rRCOEntry * entry, const int *lenArray,
 	i++;
 	destPtr += sizeof (rRCORef);
       } else {
-	*(uint32 *) destPtr = *(uint32 *) ((uint8 *) entry->extra + i * 4);
-	destPtr += sizeof (uint32);
+	*(uint32_t *) destPtr = *(uint32_t *) ((uint8_t *) entry->extra + i * 4);
+	destPtr += sizeof (uint32_t);
       }
     }
 
@@ -1251,8 +1251,8 @@ fix_refs (rRCOFile * rco, rRCOEntry * entry, const int *lenArray,
     fix_refs (rco, rcoNode, lenArray, lenNum, isObj);
 }
 
-Bool
-check_file_region (uint fSize, uint offset, uint size)
+uint8_t
+check_file_region (uint32_t fSize, uint32_t offset, uint32_t size)
 {
   if (offset + size > fSize)
     return FALSE;
@@ -1262,13 +1262,13 @@ check_file_region (uint fSize, uint offset, uint size)
 }
 
 // wrapper file functions, but can read from memory
-uint
-rco_fread (rRCOFile_readhelper * rcoH, void *buf, uint len)
+uint32_t
+rco_fread (rRCOFile_readhelper * rcoH, void *buf, uint32_t len)
 {
   if (rcoH->tablesSize) {
     if (rcoH->memPos + len > rcoH->tablesSize)
       len = rcoH->tablesSize - rcoH->memPos;
-    memcpy (buf, ((uint8 *) rcoH->tables) + rcoH->memPos, len);
+    memcpy (buf, ((uint8_t *) rcoH->tables) + rcoH->memPos, len);
 
     rcoH->memPos += len;
     return len;
@@ -1278,7 +1278,7 @@ rco_fread (rRCOFile_readhelper * rcoH, void *buf, uint len)
   }
 }
 
-uint
+uint32_t
 rcoread_ftell (rRCOFile_readhelper * rcoH)
 {
   if (rcoH->tablesSize) {
@@ -1289,7 +1289,7 @@ rcoread_ftell (rRCOFile_readhelper * rcoH)
 }
 
 int
-rcoread_fseek (rRCOFile_readhelper * rcoH, uint pos)
+rcoread_fseek (rRCOFile_readhelper * rcoH, uint32_t pos)
 {
   if (rcoH->tablesSize) {
     if (pos < rcoH->memOffset || pos - rcoH->memOffset > rcoH->tablesSize)

@@ -9,8 +9,8 @@
 #include "rlzpack.h"
 #include "7z/7z.h"
 
-uint
-zlib_compress (void *src, uint srcLen, void *dest, uint destLen, int level,
+uint32_t
+zlib_compress (void *src, uint32_t srcLen, void *dest, uint32_t destLen, int level,
     int strat)
 {
   if (strat == Z_USE_7Z) {
@@ -21,7 +21,7 @@ zlib_compress (void *src, uint srcLen, void *dest, uint destLen, int level,
     unsigned int outSize = destLen - 6;	// = 2 for sig + 4 for checksum
     unsigned char *destPtr = (unsigned char *) dest;
 
-    *(uint16 *) destPtr = 0xDA78;	// zlib signature
+    *(uint16_t *) destPtr = 0xDA78;	// zlib signature
     destPtr += 2;
 
     int passes = 1, fastbytes = 64;
@@ -55,7 +55,7 @@ zlib_compress (void *src, uint srcLen, void *dest, uint destLen, int level,
     uLong adler = adler32 (adler32 (0L, Z_NULL, 0), (Bytef *) src, srcLen);
 
 #define ENDIAN_SWAP_32(x) (((x) & 0xFF) << 24 | ((x) & 0xFF00) << 8 | ((x) & 0xFF0000) >> 8 | ((x) & 0xFF000000) >> 24)
-    *(uint32 *) (destPtr + outSize) = ENDIAN_SWAP_32 (adler);
+    *(uint32_t *) (destPtr + outSize) = ENDIAN_SWAP_32 (adler);
 
     return outSize + 6;
   } else {
@@ -107,8 +107,8 @@ zlib_uncompress (void *dest, unsigned int destLen, const void *src,
   return ret;
 }
 
-uint
-zlib_unpacked_size (void *src, uint srcLen)
+uint32_t
+zlib_unpacked_size (void *src, uint32_t srcLen)
 {
   z_stream s;
 
@@ -125,7 +125,7 @@ zlib_unpacked_size (void *src, uint srcLen)
   if (inflateInit (&s) != Z_OK)
     return 0xFFFFFFFF;
 
-  uint size = 0;
+  uint32_t size = 0;
   int ret;
 
   while ((ret = inflate (&s, Z_NO_FLUSH)) == Z_OK) {
@@ -147,8 +147,8 @@ zlib_unpacked_size (void *src, uint srcLen)
   return size;
 }
 
-uint
-rlz_compress (void *src, uint srcLen, void *dest, uint destLen, int mode)
+uint32_t
+rlz_compress (void *src, uint32_t srcLen, void *dest, uint32_t destLen, int mode)
 {
   if (mode == -1) {
     // theme creator compatible mode
@@ -185,7 +185,7 @@ rlz_compress (void *src, uint srcLen, void *dest, uint destLen, int mode)
   }
 }
 
-Bool
+uint8_t
 file_exists (char *fn)
 {
   // our deetection routine is weird - just tries to open the file
@@ -199,7 +199,7 @@ file_exists (char *fn)
   return FALSE;
 }
 
-uint
+uint32_t
 filesize (const char *fn)
 {
   FILE *fp = fopen (fn, "rb");
@@ -207,7 +207,7 @@ filesize (const char *fn)
   if (!fp)
     return 0;
   fseek (fp, 0, SEEK_END);
-  uint f = ftell (fp);
+  uint32_t f = ftell (fp);
 
   fclose (fp);
 
@@ -215,8 +215,8 @@ filesize (const char *fn)
 }
 
 // finds the smallest prime number which is >= in
-uint
-find_larger_prime (uint in)
+uint32_t
+find_larger_prime (uint32_t in)
 {
   if (in <= 2)
     return 2;
@@ -231,8 +231,8 @@ find_larger_prime (uint in)
   }
 }
 
-Bool
-is_prime (uint in)
+uint8_t
+is_prime (uint32_t in)
 {
   if (in < 12) {		// need this buffer as "lim" (below) may
 				// underflow
@@ -242,8 +242,8 @@ is_prime (uint in)
   if ((in ^ 1) & 1)
     return FALSE;
 
-  uint i;
-  uint lim = (uint) floor (sqrt ((float) in));
+  uint32_t i;
+  uint32_t lim = (uint32_t) floor (sqrt ((float) in));
 
   for (i = 3; i <= lim; i += 2)
     if (in % i == 0)

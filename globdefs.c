@@ -4,7 +4,7 @@
 
 // 0x1F object type only found in PS3 RCOs and may not be valid for PSP!!!
 int *RCO_OBJ_EXTRA_LEN = NULL;
-uint RCO_OBJ_EXTRA_LEN_NUM;
+uint32_t RCO_OBJ_EXTRA_LEN_NUM;
 
 // this doesn't include position info
 RcoObjMap RCO_OBJ_EXTRA_NAMES = NULL;
@@ -12,9 +12,9 @@ RcoObjMap RCO_OBJ_EXTRA_NAMES = NULL;
 RcoObjTypes RCO_OBJ_EXTRA_TYPES = NULL;
 
 int *RCO_ANIM_EXTRA_LEN = NULL;
-uint RCO_ANIM_EXTRA_LEN_NUM;
+uint32_t RCO_ANIM_EXTRA_LEN_NUM;
 
-const Bool RCO_ANIM_EXTRA_REFS[] =
+const uint8_t RCO_ANIM_EXTRA_REFS[] =
     { FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, TRUE, FALSE, TRUE, FALSE, FALSE,
   TRUE
 };
@@ -40,6 +40,6 @@ RcoTableMap RCOXML_TABLE_SOUND_FMT = NULL;
 
 RcoTagMap RCOXML_TABLE_TAGS = NULL;
 
-uint RCOXML_TABLE_TAGS_NUM;
+uint32_t RCOXML_TABLE_TAGS_NUM;
 
 RcoTableMap RCOXML_TABLE_NAMES = NULL;

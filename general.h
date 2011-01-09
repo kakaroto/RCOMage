@@ -11,16 +11,12 @@
 #define APPXMLVER 1.10f
 #define APPVER 1.11f
 
-typedef unsigned int uint;	// since "unsigned int" is a pain in the @$$ to 
-				// type
-
-typedef int Bool;
 
 #ifndef TRUE
-#define TRUE (Bool)1
+#define TRUE (uint8_t)1
 #endif
 #ifndef FALSE
-#define FALSE (Bool)0
+#define FALSE (uint8_t)0
 #endif
 
 #define ENDIAN_SWAP_16(x) (((x) & 0xFF) << 8 | ((x) & 0xFF00) >> 8)
@@ -29,7 +25,7 @@ typedef int Bool;
 
 #include <stdio.h>
 
-extern Bool quietMode;
+extern uint8_t quietMode;
 
 #define info(...) if(!quietMode) { fprintf(stderr, __VA_ARGS__); fprintf(stderr, "\n"); }
 #define error(...) { fprintf(stderr, "Error: "); fprintf(stderr, __VA_ARGS__); fprintf(stderr, "\n"); fflush(stderr); }
@@ -52,31 +48,25 @@ extern Bool quietMode;
 // #define ALIGN_TO_4(n) (((n) + 3) >>2 <<2) // problem: upper 2 bits gets
 // wiped too
 
-typedef uint8_t uint8;
-typedef int8_t int8;
-typedef uint16_t uint16;
-typedef int16_t int16;
-typedef uint32_t uint32;
-typedef int32_t int32;
 
-#define UTF8_BOM  ((uint32) 0xBFBBEF)
-#define UTF16_BOM ((uint16) 0xFEFF)
-#define UTF32_BOM ((uint32) 0x0000FEFF)
+#define UTF8_BOM  ((uint32_t) 0xBFBBEF)
+#define UTF16_BOM ((uint16_t) 0xFEFF)
+#define UTF32_BOM ((uint32_t) 0x0000FEFF)
 
 #define PACK_STRUCT(nam, struc) typedef struct struc __attribute__ ((packed)) nam
 
-uint zlib_compress (void *src, uint srcLen, void *dest, uint destLen, int level,
+uint32_t zlib_compress (void *src, uint32_t srcLen, void *dest, uint32_t destLen, int level,
     int strat);
 int zlib_uncompress (void *dest, unsigned int destLen, const void *src,
     unsigned int srcLen);
-uint zlib_unpacked_size (void *src, uint srcLen);
-uint rlz_compress (void *src, uint srcLen, void *dest, uint destLen, int mode);
-Bool file_exists (char *fn);
+uint32_t zlib_unpacked_size (void *src, uint32_t srcLen);
+uint32_t rlz_compress (void *src, uint32_t srcLen, void *dest, uint32_t destLen, int mode);
+uint8_t file_exists (char *fn);
 
-uint filesize (const char *fn);
+uint32_t filesize (const char *fn);
 
-uint find_larger_prime (uint in);
-Bool is_prime (uint in);
+uint32_t find_larger_prime (uint32_t in);
+uint8_t is_prime (uint32_t in);
 
 void get_temp_fname (char *out, const char *ext);
 

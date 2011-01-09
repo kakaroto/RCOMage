@@ -199,7 +199,7 @@ readVSMX (FILE * fp)
 {
 
   VSMXHeader header;
-  uint filePos;
+  uint32_t filePos;
   VsmxMem *out;
 
   fileread (fp, &header, sizeof (header));
@@ -255,7 +255,7 @@ readVSMX (FILE * fp)
 			pVar = (typ **)malloc(te * sizeof(typ *)); \
 			pVar[0] = var; \
 			 \
-			uint pti = 1, ci; \
+			uint32_t pti = 1, ci; \
 			for(ci = 1; ci < tl / sizeof(typ); ci++) { \
 				if(var[ci-1] == 0) { \
 					if(pti == te) { \
@@ -301,7 +301,7 @@ readVSMXMem (const void *in)
 {
 
   VSMXHeader *header = (VSMXHeader *) in;
-  uint filePos;
+  uint32_t filePos;
   VsmxMem *out;
 
   if (header->sig != VSMX_SIGNATURE || header->ver != VSMX_VERSION) {
@@ -323,7 +323,7 @@ readVSMXMem (const void *in)
 
   // TODO: check lengths are in sane ranges
   out->code = (VSMXGroup *) malloc (header->codeLength);
-  memcpy (out->code, (uint8 *) in + header->codeOffset, header->codeLength);
+  memcpy (out->code, (uint8_t *) in + header->codeOffset, header->codeLength);
   out->codeGroups = header->codeLength / sizeof (VSMXGroup);
 
   filePos = header->codeOffset + header->codeLength;
@@ -351,13 +351,13 @@ readVSMXMem (const void *in)
 			} \
 			 \
 			var = (typ *)malloc(tl +sizeof(typ)); \
-			memcpy(var, (uint8*)in + filePos, tl); \
+			memcpy(var, (uint8_t*)in + filePos, tl); \
 			var[tl / sizeof(typ)] = 0; \
 			 \
 			pVar = (typ **)malloc(te * sizeof(typ *)); \
 			pVar[0] = var; \
 			 \
-			uint pti = 1, ci; \
+			uint32_t pti = 1, ci; \
 			for(ci = 1; ci < tl / sizeof(typ); ci++) { \
 				if(var[ci-1] == 0) { \
 					if(pti == te) { \
@@ -460,19 +460,19 @@ writeVSMXMem (unsigned int *len, VsmxMem * in)
 
   pos = sizeof (VSMXHeader);
   if (in->code) {
-    memcpy ((uint8 *) ret + pos, in->code, header->codeLength);
+    memcpy ((uint8_t *) ret + pos, in->code, header->codeLength);
     pos += header->codeLength;
   }
   if (in->text) {
-    memcpy ((uint8 *) ret + pos, in->text, header->textLength);
+    memcpy ((uint8_t *) ret + pos, in->text, header->textLength);
     pos += header->textLength;
   }
   if (in->prop) {
-    memcpy ((uint8 *) ret + pos, in->prop, header->propLength);
+    memcpy ((uint8_t *) ret + pos, in->prop, header->propLength);
     pos += header->propLength;
   }
   if (in->names) {
-    memcpy ((uint8 *) ret + pos, in->names, header->namesLength);
+    memcpy ((uint8_t *) ret + pos, in->names, header->namesLength);
     pos += header->namesLength;
   }
   return ret;
@@ -488,7 +488,7 @@ writeVSMXMem (unsigned int *len, VsmxMem * in)
 int
 VsmxDecode (VsmxMem * in, FILE * out)
 {
-  uint i;
+  uint32_t i;
 
   fputws (L"; Decoded VSMX file written by " APPNAME_VER "\n\n", out);
 
@@ -527,7 +527,7 @@ VsmxDecode (VsmxMem * in, FILE * out)
 	  // for some reason, the %s modifier in fwprintf doesn't work
 	  // properly... :/ so we need to convert to a wide char string
 	  wchar *tmp;
-	  uint tmpLen = strlen (in->pNames[in->code[i].val.u32]);
+	  uint32_t tmpLen = strlen (in->pNames[in->code[i].val.u32]);
 
 	  CHECK_INDEX (in->numNames, "name");
 	  tmp = (wchar *) malloc ((tmpLen + 1) * sizeof (wchar));
@@ -646,7 +646,7 @@ VsmxAddText (void **text, unsigned int **offs, unsigned int *textLen,
   }
 
   for (p = 0; p < *numText; p++) {
-    Bool cond;
+    uint8_t cond;
 
     if (charWidth == 1) {
       cond = strcmp (*(char **) text + (*offs)[p], newTextByte);
@@ -899,7 +899,7 @@ struct __VsmxDecompileStack {
   int arrayFlag;
 
   VsmxDecompileStack *prev;
-  uint depth;
+  uint32_t depth;
 };
 
 static inline void
@@ -945,11 +945,11 @@ VsmxDecompileStackDestroy (VsmxDecompileStack ** stack)
 typedef struct __VsmxDecompMarkStack VsmxDecompMarkStack;
 
 struct __VsmxDecompMarkStack {
-  uint loc;
-  uint src;
+  uint32_t loc;
+  uint32_t src;
 
   VsmxDecompMarkStack *prev;
-  uint depth;
+  uint32_t depth;
 };
 
 static inline void
@@ -965,7 +965,7 @@ VsmxDecompMarkStackPush (VsmxDecompMarkStack ** stack,
     if (newItem->loc > (*stack)->loc) {
       warning ("Bad nesting hierachy detected!");
       // well, what to do? Just switch them around I guess...
-      uint tmp = newItem->loc;
+      uint32_t tmp = newItem->loc;
 
       newItem->loc = (*stack)->loc;
       (*stack)->loc = tmp;
@@ -1002,7 +1002,7 @@ VsmxDecompMarkStackDestroy (VsmxDecompMarkStack ** stack)
 }
 
 static inline void
-writeTabs (FILE * out, uint num)
+writeTabs (FILE * out, uint32_t num)
 {
   while (num--)
     fputwc ('\t', out);
@@ -1011,15 +1011,15 @@ writeTabs (FILE * out, uint num)
 int
 VsmxDecompile (VsmxMem * in, FILE * out)
 {
-  uint i, indent = 0, stmtStart = 0;
+  uint32_t i, indent = 0, stmtStart = 0;
   int indentAdd = 0;
   VsmxDecompileStack *stack = NULL;
   VsmxDecompileStack item;
   VsmxDecompMarkStack *mStack = NULL;
   VsmxDecompMarkStack mItem;
-  uint endStmtConcat = 1;
+  uint32_t endStmtConcat = 1;
 
-  uint forStmtEnd = 0;
+  uint32_t forStmtEnd = 0;
 
   fputws (L"// Decompiled VSMX -> Javascript output by " APPNAME_VER
       "\n//Note, this is highly experimental and the output probably sucks.\n\n",
@@ -1088,7 +1088,7 @@ VsmxDecompile (VsmxMem * in, FILE * out)
 
     // stuff we'll use later
     wchar op[50] = { 0 };
-    Bool notSectStart = FALSE;
+    uint8_t notSectStart = FALSE;
 
     /* #ifdef MINGW #define SWPRINTF_ITEM(s, ...) swprintf(item.str, L##s,
      * __VA_ARGS__) #else #define SWPRINTF_ITEM(s, ...) swprintf(item.str,
@@ -1204,7 +1204,7 @@ VsmxDecompile (VsmxMem * in, FILE * out)
 	else {
 	  wcscpy (item.str, L"true");
 	  if (in->code[i].val.u32 != 1)
-	    warning ("Boolean value at group #%d is not 0 or 1.", i);
+	    warning ("uint8_tean value at group #%d is not 0 or 1.", i);
 	}
 	VsmxDecompileStackPush (&stack, &item);
 	break;
@@ -1288,7 +1288,7 @@ VsmxDecompile (VsmxMem * in, FILE * out)
       case VID_MAKE_FLOAT_ARRAY:
 	{
 	  VsmxDecompileStack *prev;
-	  uint j;
+	  uint32_t j;
 
 	  for (j = 0; j < in->code[i].val.u32; j++) {
 	    prev = VsmxDecompileStackPop (&stack);
@@ -1321,7 +1321,7 @@ VsmxDecompile (VsmxMem * in, FILE * out)
 	    item.arrayFlag = 2;
 	    VsmxDecompileStackPush (&stack, &item);
 	  } else {
-	    uint aLen = wcslen (array->str);
+	    uint32_t aLen = wcslen (array->str);
 
 	    if (aLen < 3) {
 	      error ("Internal array handling error at %d!", i);
@@ -1359,13 +1359,13 @@ VsmxDecompile (VsmxMem * in, FILE * out)
 	{
 	  // TODO: need to check marker stack for look aheads
 	  // !!! note look ahead used!
-	  Bool funcEndStmtStyle = (i + 3 < in->codeGroups &&
+	  uint8_t funcEndStmtStyle = (i + 3 < in->codeGroups &&
 	      in->code[i + 2].id == VID_END_STMT &&
 	      in->code[i + 3].id == VID_SECT_START &&
 	      in->code[i].val.u32 == i + 4);
 
 	  wchar args[4096] = L"";	// large enough for anything
-	  uint numArgs = (in->code[i].id >> 8) & 0xFF, argI;
+	  uint32_t numArgs = (in->code[i].id >> 8) & 0xFF, argI;
 
 	  if (in->code[i].id >> 16 & 0xFF) {
 	    warning
@@ -1495,7 +1495,7 @@ VsmxDecompile (VsmxMem * in, FILE * out)
 	  VsmxDecompileStack *prev;
 
 	  if (in->code[i].val.u32 > 0) {
-	    uint arg;
+	    uint32_t arg;
 
 	    strwcpy (item.str, " )", MAX_TEXT_LEN);
 	    for (arg = 0; arg < in->code[i].val.u32; arg++) {

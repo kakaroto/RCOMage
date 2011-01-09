@@ -162,7 +162,7 @@ configLoadMiscmap (void)
 }
 
 void
-configLoadObjmap (Bool ps3)
+configLoadObjmap (uint8_t ps3)
 {
   char from[30] = "objattribdef-psp.ini";
 
@@ -239,7 +239,7 @@ configLoadObjmap (Bool ps3)
 }
 
 void
-configLoadAnimmap (Bool ps3)
+configLoadAnimmap (uint8_t ps3)
 {
   char from[30] = "animattribdef-psp.ini";
 

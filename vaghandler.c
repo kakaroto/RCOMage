@@ -22,12 +22,12 @@ const double f[5][2] = { {0.0, 0.0},
 #define VAG_SIGNATURE 0x70474156
 #define VAG_VERSION 0x4000000	// 0x2000000
 PACK_STRUCT (VagHeader, {
-      uint32 signature;		// "VAGp"
-      uint32 version;		// 0x20
-      uint32 reserved;		// 0
-      uint32 dataSize;		// size of file - 0x30
-      uint32 frequency;
-      uint8 reserved2[12];	// 0
+      uint32_t signature;		// "VAGp"
+      uint32_t version;		// 0x20
+      uint32_t reserved;		// 0
+      uint32_t dataSize;		// size of file - 0x30
+      uint32_t frequency;
+      uint8_t reserved2[12];	// 0
       char name[16];
       char unknown[16];
     });
@@ -45,24 +45,24 @@ PACK_STRUCT (VagChunk, {
 #define WAV_PCM_FORMAT 1
 #define WAV_S2_SIG 0x61746164
 PACK_STRUCT (WavHeader, {
-      uint32 signature;		// "RIFF"
-      uint32 size;		// filesize - 8
-      uint32 format;		// "WAVE"
-      uint32 s1sig;		// "fmt "
-      uint32 s1size;		// 16 for PCM
-      uint16 audioFmt;		// PCM = 1
-      uint16 channels;
-      uint32 frequency;
-      uint32 byterate;		// = frequency * channels * bitDepth/8
-      uint16 sampleSize;	// = channels * bitDepth / 8
-      uint16 bitDepth;		// we'll always use 16
-      uint32 s2sig;		// "data"
-      uint32 s2size;		// = numSamples * channels * bitDepth/8 OR
+      uint32_t signature;		// "RIFF"
+      uint32_t size;		// filesize - 8
+      uint32_t format;		// "WAVE"
+      uint32_t s1sig;		// "fmt "
+      uint32_t s1size;		// 16 for PCM
+      uint16_t audioFmt;		// PCM = 1
+      uint16_t channels;
+      uint32_t frequency;
+      uint32_t byterate;		// = frequency * channels * bitDepth/8
+      uint16_t sampleSize;	// = channels * bitDepth / 8
+      uint16_t bitDepth;		// we'll always use 16
+      uint32_t s2sig;		// "data"
+      uint32_t s2size;		// = numSamples * channels * bitDepth/8 OR
 				// size-36
     });
 
 // TODO: sanity checks with lengths
-Bool
+uint8_t
 vag2wav (const char *fWav, int numChannels, int *vagLen, void **vagData)
 {
 
@@ -115,12 +115,12 @@ vag2wav (const char *fWav, int numChannels, int *vagLen, void **vagData)
 
   filewrite (fp, &wh, sizeof (wh));
 
-  int wavSamplesSize = numChannels * 28 * sizeof (int16);
-  int16 *wavSamples = (int16 *) malloc (wavSamplesSize);
+  int wavSamplesSize = numChannels * 28 * sizeof (int16_t);
+  int16_t *wavSamples = (int16_t *) malloc (wavSamplesSize);
   double *factors = (double *) calloc (numChannels * 2, sizeof (double));
 
   while (TRUE) {
-    Bool notEnded = FALSE;
+    uint8_t notEnded = FALSE;
 
     memset (wavSamples, 0, numChannels * 28);
     for (i = 0; i < numChannels; i++) {
@@ -138,7 +138,7 @@ vag2wav (const char *fWav, int numChannels, int *vagLen, void **vagData)
 	  samples[j * 2 + 1] = (vc->s[j] & 0xF0) >> 4;
 	}
 	for (j = 0; j < 28; j++) {
-	  int s = samples[j] << 12;	// shift 4 bits to top range of int16
+	  int s = samples[j] << 12;	// shift 4 bits to top range of int16_t
 
 	  if (s & 0x8000)
 	    s |= 0xFFFF0000;
@@ -147,7 +147,7 @@ vag2wav (const char *fWav, int numChannels, int *vagLen, void **vagData)
 	      factors[i * 2 + 1] * f[predict][1];
 	  factors[i * 2 + 1] = factors[i * 2];
 	  factors[i * 2] = sample;
-	  wavSamples[j * numChannels + i] = (int16) ROUND (sample);
+	  wavSamples[j * numChannels + i] = (int16_t) ROUND (sample);
 	}
 	notEnded = TRUE;
       }
@@ -162,7 +162,7 @@ vag2wav (const char *fWav, int numChannels, int *vagLen, void **vagData)
   free (wavSamples);
   free (factors);
 
-  if (wh.size != (uint32) (ftell (fp) - 8)) {	// fixup WAV sizes if wrong
+  if (wh.size != (uint32_t) (ftell (fp) - 8)) {	// fixup WAV sizes if wrong
     if (strcmp (fWav, "-")) {	// can only fix if not writing to stdout
       wh.size = ftell (fp) - 8;
       wh.s2size = wh.size - 36;
@@ -177,7 +177,7 @@ vag2wav (const char *fWav, int numChannels, int *vagLen, void **vagData)
 }
 
 int
-wav2vag (const char *fWav, uint * len, void **vagData, const char *vagName)
+wav2vag (const char *fWav, uint32_t * len, void **vagData, const char *vagName)
 {
   FILE *fp = openread (fWav);
 
@@ -201,9 +201,9 @@ wav2vag (const char *fWav, uint * len, void **vagData, const char *vagName)
 	  ("File '%s' appears to have a non-standard header length for PCM.  Attempting to auto-skip...",
 	  fWav);
       fseek (fp,
-	  sizeof (wh) + (wh.s1size - WAV_S1_SIZE_PCM) - sizeof (uint32) * 2,
+	  sizeof (wh) + (wh.s1size - WAV_S1_SIZE_PCM) - sizeof (uint32_t) * 2,
 	  SEEK_SET);
-      fileread (fp, &wh.s2sig, sizeof (uint32));
+      fileread (fp, &wh.s2sig, sizeof (uint32_t));
     }
   if (wh.s1sig != WAV_S1_SIG || wh.s2sig != WAV_S2_SIG)
     WAV2VAG_ERROR_EXIT
@@ -219,7 +219,7 @@ wav2vag (const char *fWav, uint * len, void **vagData, const char *vagName)
 	int i, j, k;
 
   // size compression is 28 16-bit samples -> 16 bytes
-  uint numSamples = wh.s2size / wh.sampleSize;
+  uint32_t numSamples = wh.s2size / wh.sampleSize;
 
   *len =
       (numSamples / 28 + (numSamples % 28 ? 2 : 1)) * sizeof (VagChunk) +
@@ -237,9 +237,9 @@ wav2vag (const char *fWav, uint * len, void **vagData, const char *vagName)
     strncpy (vh->name, vagName, 16);
   }
 
-  uint pos;
+  uint32_t pos;
   int wavBufSize = 28 * (wh.bitDepth / 8) * wh.channels;
-  int16 *wavBuf = (int16 *) malloc (wavBufSize);
+  int16_t *wavBuf = (int16_t *) malloc (wavBufSize);
   double *factors = (double *) calloc (wh.channels * 2, sizeof (double));
   double *factors2 = (double *) calloc (wh.channels * 2, sizeof (double));
 
@@ -251,10 +251,10 @@ wav2vag (const char *fWav, uint * len, void **vagData, const char *vagName)
     WAV2VAG_ERROR_EXIT ("Premature end in WAV file '%s'; conversion failed.")}
     if (pos + 28 > numSamples)
       memset (wavBuf + ((numSamples -
-		  pos) * (wh.bitDepth / 8) * wh.channels / sizeof (int16)), 0,
+		  pos) * (wh.bitDepth / 8) * wh.channels / sizeof (int16_t)), 0,
 	  (28 - numSamples + pos) * (wh.bitDepth / 8) * wh.channels);
 
-    uint ch;
+    uint32_t ch;
 
     for (ch = 0; ch < wh.channels; ch++) {
       VagChunk *vc =
@@ -299,7 +299,7 @@ wav2vag (const char *fWav, uint * len, void **vagData, const char *vagName)
       factors[ch * 2 + 1] = s2[predict];
 
       // find_shift
-      uint shiftMask;
+      uint32_t shiftMask;
 
       for (shift = 0, shiftMask = 0x4000; shift < 12; shift++, shiftMask >>= 1) {
 	if (shiftMask & ((int) min + (shiftMask >> 3)))
@@ -314,7 +314,7 @@ wav2vag (const char *fWav, uint * len, void **vagData, const char *vagName)
       // I don't understand it, but it seems that the second transformation is
       // required to prevent a clipping sound effect although it should produce 
       // worse reconverts...
-      int8 outBuf[28];
+      int8_t outBuf[28];
 
       for (k = 0; k < 28; k++) {
 	double s_double_trans =
@@ -328,7 +328,7 @@ wav2vag (const char *fWav, uint * len, void **vagData, const char *vagName)
 	if (sample < -32768)
 	  sample = -32768;
 
-	outBuf[k] = (int8) (sample >> 12);
+	outBuf[k] = (int8_t) (sample >> 12);
 	factors2[ch * 2 + 1] = factors2[ch * 2];
 	factors2[ch * 2] = (double) (sample >> shift) - s_double_trans;
       }
@@ -339,11 +339,11 @@ wav2vag (const char *fWav, uint * len, void **vagData, const char *vagName)
       /* { int samples[28]; // expand 4bit -> 8bit for(j=0; j<14; j++) {
        * samples[j*2] = vc->s[j] & 0xF; samples[j*2+1] = (vc->s[j] & 0xF0) >>
        * 4; } for(j=0; j<28; j++) { int s = samples[j] << 12; // shift 4 bits
-       * to top range of int16 if(s & 0x8000) s |= 0xFFFF0000; double sample =
+       * to top range of int16_t if(s & 0x8000) s |= 0xFFFF0000; double sample =
        * (double)(s >> shift) + factors2[ch*2] * f[predict][0] +
        * factors2[ch*2+1] * f[predict][1]; factors2[ch*2+1] = factors2[ch*2];
        * factors2[ch*2] = sample; if(wavBuf[j*wh.channels + ch] !=
-       * (int16)ROUND(sample)) { printf("a"); } } } */
+       * (int16_t)ROUND(sample)) { printf("a"); } } } */
     }
   }
 
@@ -365,7 +365,7 @@ wav2vag (const char *fWav, uint * len, void **vagData, const char *vagName)
 }
 
 /* 
- * int wav2vag(const char* fWav, uint* len, void** vagData, const char*
+ * int wav2vag(const char* fWav, uint32_t* len, void** vagData, const char*
  * vagName) { FILE* fp = fopen(fWav, "rb"); if(!fp) return 0;
  * 
  * WavHeader wh; fileread(fp, &wh, sizeof(wh));
@@ -388,7 +388,7 @@ wav2vag (const char *fWav, uint * len, void **vagData, const char *vagName)
  * header for '%s'.")
  * 
  * 
- * int i, j, k; // size compression is 28 16-bit samples -> 16 bytes uint
+ * int i, j, k; // size compression is 28 16-bit samples -> 16 bytes uint32_t
  * numSamples = wh.s2size / wh.sampleSize; *len = (numSamples/28 + (numSamples
  * % 28 ? 2:1)) * sizeof(VagChunk) + sizeof(VagHeader); *vagData = calloc(1,
  * *len * wh.channels);
@@ -399,15 +399,15 @@ wav2vag (const char *fWav, uint * len, void **vagData, const char *vagName)
  * - 0x30); vh->frequency = ENDIAN_SWAP(wh.frequency); strncpy(vh->name,
  * vagName, 16); }
  * 
- * uint pos; int wavBufSize = 28 * (wh.bitDepth/8) * wh.channels; int16* wavBuf 
- * = (int16*)malloc(wavBufSize); double* factors =
+ * uint32_t pos; int wavBufSize = 28 * (wh.bitDepth/8) * wh.channels; int16_t* wavBuf 
+ * = (int16_t*)malloc(wavBufSize); double* factors =
  * (double*)calloc(wh.channels*2, sizeof(double)); double* factors2 =
  * (double*)calloc(wh.channels*2, sizeof(double)); for(pos=0; pos<numSamples;
  * pos += 28) { if(!fileread(fp, wavBuf, wavBufSize)) { free(wavBuf);
  * free(factors); free(factors2); WAV2VAG_ERROR_EXIT("Premature end in WAV file 
  * '%s'; conversion failed.") }
  * 
- * uint ch; for(ch=0; ch<wh.channels; ch++) { VagChunk* vc =
+ * uint32_t ch; for(ch=0; ch<wh.channels; ch++) { VagChunk* vc =
  * (VagChunk*)((char*)(*vagData) + *len * ch + sizeof(VagHeader) +
  * sizeof(VagChunk)*(pos/28));
  * 
@@ -421,18 +421,18 @@ wav2vag (const char *fWav, uint * len, void **vagData, const char *vagName)
  * predict = j; // ???? store s1 & s2 into temp place? } // ???? if(min <= 7) {
  * predict = 0; break; } } // ???? factors[ch*2] = s1; factors[ch*2+1] = s2;
  * 
- * // find_shift uint shiftMask; for(shift=0, shiftMask=0x4000; shift<12;
+ * // find_shift uint32_t shiftMask; for(shift=0, shiftMask=0x4000; shift<12;
  * shift++, shiftMask>>=1) { if(shiftMask & ((int)min + (shiftMask >> 3)))
  * break; } // so shift==12 if none found...
  * 
  * vc->predict_shift = ((predict << 4) & 0xF0) | (shift & 0xF); vc->flags =
  * (numSamples - pos >= 28 ? 0:1);
  * 
- * // pack uint8 outBuf[28]; for(k=0; k<28; k++) { double sample =
+ * // pack uint8_t outBuf[28]; for(k=0; k<28; k++) { double sample =
  * predictBuf[predict][k] - factors2[ch*2] * f[predict][0] - factors2[ch*2+1] *
  * f[predict][1]; int sample2 = ((int)(sample * (1 << shift)) + 0x800) &
  * 0xfffff000; if(sample2 > 32767) sample2 = 32767; if(sample2 < -32768) sample2 
- * = -32768; outBuf[k] = (uint8)(sample2 >> 8); sample2 >>= shift;
+ * = -32768; outBuf[k] = (uint8_t)(sample2 >> 8); sample2 >>= shift;
  * factors2[ch*2+1] = factors2[ch*2]; factors2[ch*2] = (double)sample2 - sample;
  * } for(k=0; k<14; k++) vc->s[k] = (outBuf[k*2+1] & 0xF0) | ((outBuf[k*2] >> 4)
  * & 0xF); } }

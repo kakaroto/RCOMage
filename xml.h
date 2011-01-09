@@ -5,8 +5,8 @@
 #include "general.h"
 #include "rcomain.h"
 
-Bool write_xml (rRCOFile * rco, FILE * fp, char *textDir, Bool textXmlOut,
-    int sndDumped, Bool vsmxConv);
+uint8_t write_xml (rRCOFile * rco, FILE * fp, char *textDir, uint8_t textXmlOut,
+    int sndDumped, uint8_t vsmxConv);
 rRCOFile *read_xml (char *fn);
 
 #define RCOXML_TABLE_2ND_DIM 20
@@ -26,11 +26,11 @@ extern RcoTableMap RCOXML_TABLE_REFTYPE;
 
 extern RcoTagMap RCOXML_TABLE_TAGS;
 
-extern uint RCOXML_TABLE_TAGS_NUM;
+extern uint32_t RCOXML_TABLE_TAGS_NUM;
 
 extern RcoTableMap RCOXML_TABLE_NAMES;
 
-void rcoxml_int_to_text (uint in, const RcoTableMap map, char *out);
-Bool rcoxml_text_to_int (char *s, const RcoTableMap map, uint * out);
+void rcoxml_int_to_text (uint32_t in, const RcoTableMap map, char *out);
+uint8_t rcoxml_text_to_int (char *s, const RcoTableMap map, uint32_t * out);
 
 #endif

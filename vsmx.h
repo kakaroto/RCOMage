@@ -7,18 +7,18 @@ typedef wchar_t wchar;
 #define VSMX_SIGNATURE 0x584D5356	// "VSMX"
 #define VSMX_VERSION 0x00010000
 PACK_STRUCT (VSMXHeader, {
-      uint32 sig; uint32 ver; uint32 codeOffset; uint32 codeLength;
-      uint32 textOffset; uint32 textLength; uint32 textEntries;
-      uint32 propOffset;
-      uint32 propLength; uint32 propEntries; uint32 namesOffset;
-      uint32 namesLength;
-      uint32 namesEntries;
+      uint32_t sig; uint32_t ver; uint32_t codeOffset; uint32_t codeLength;
+      uint32_t textOffset; uint32_t textLength; uint32_t textEntries;
+      uint32_t propOffset;
+      uint32_t propLength; uint32_t propEntries; uint32_t namesOffset;
+      uint32_t namesLength;
+      uint32_t namesEntries;
     });
 
 PACK_STRUCT (VSMXGroup, {
-      uint32 id;
+      uint32_t id;
       union {
-	uint32 u32;
+	uint32_t u32;
 	float f;
       } val;
     });
@@ -30,7 +30,7 @@ typedef struct {
   wchar **pText, **pProp;
   char **pNames;
 
-  uint codeGroups, numText, numProp, numNames, lenText, lenProp, lenNames;
+  uint32_t codeGroups, numText, numProp, numNames, lenText, lenProp, lenNames;
 } VsmxMem;
 
 VsmxMem *readVSMX (FILE * fp);
