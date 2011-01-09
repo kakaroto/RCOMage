@@ -1,12 +1,13 @@
-#include "zlib/zlib.h"
+
 #include <string.h> // memset()
 #include <stdio.h>
 #include <math.h> // sqrt
 #include <stdlib.h> // free()
+
+#include <zlib.h>
 #include "general.h"
 #include "rlzpack.h"
 #include "7z/7z.h"
-
 
 uint zlib_compress(void* src, uint srcLen, void* dest, uint destLen, int level, int strat) {
 	if(strat == Z_USE_7Z) {

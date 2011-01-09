@@ -1,7 +1,7 @@
 // main todos: src duplication checker in rco_write_resource()
 
 #include <stdlib.h> // malloc & free
-#include "zlib/zlib.h" // compressBound()
+#include <zlib.h> // compressBound()
 #include <string.h> // memset()
 #include "general.h"
 #include "rcomain.h"

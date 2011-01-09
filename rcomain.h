@@ -6,7 +6,7 @@
 #include "general.h"
 #include "rcofile.h"
 #include <stdio.h>
-#include "zlib/zlib.h"
+#include <zlib.h>
 
 #define MAX_FILENAME_LEN 260
 
