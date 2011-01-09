@@ -1,3 +1,4 @@
 - RLZ decompressor
 - GIM/GMO converter
 - Improve VSMX decompiler
+- Install data/*.ini to /usr/share and read ini from $prefix/rcomage
