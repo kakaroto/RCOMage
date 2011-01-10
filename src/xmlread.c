@@ -1750,8 +1750,8 @@ parse_text_xml (char *fn, rRCOFile * rco, rRCOEntry * entry)
 	      }
 	    }
 	    if (te->indexes[i].length > 2) {
-	      uint32_t contentLen = xmlStrlen (n), outBufLen =
-		  te->indexes[i].length;
+	      size_t contentLen = xmlStrlen (n);
+	      size_t outBufLen = te->indexes[i].length;
 
 	      textBuffer =
 		  realloc (textBuffer,
@@ -1768,14 +1768,14 @@ parse_text_xml (char *fn, rRCOFile * rco, rRCOEntry * entry)
 	      if ((*(uint32_t *) n & 0xFFFFFF) == UTF8_BOM) {
 		char bom[4];
 		char *bomPtr = bom;
-		uint32_t bomLen =
+		size_t bomLen =
 		    (fmt == RCO_TEXT_FMT_UTF32 ? 4 : (fmt ==
 			RCO_TEXT_FMT_UTF8 ? 3 : 2));
-		iconv (ic, (char **) (&n), (size_t *) (&contentLen),
-		    (char **) &bomPtr, (size_t *) (&bomLen));
+		iconv (ic, (char **) (&n), &contentLen,
+		    (char **) &bomPtr, &bomLen);
 	      }
-	      iconv (ic, (char **) (&n), (size_t *) (&contentLen), &tbPtr,
-		  (size_t *) (&outBufLen));
+	      iconv (ic, (char **) (&n), &contentLen, &tbPtr,
+		  &outBufLen);
 	      if (outBufLen && outBufLen == charWidth) {	// *should*
 		// always be
 		// true
