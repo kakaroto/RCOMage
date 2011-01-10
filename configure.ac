@@ -3,7 +3,7 @@
 
 AC_PREREQ([2.66])
 AC_INIT([RCOMage], [1.1.1])
-AC_CONFIG_SRCDIR([rcomain.c])
+AC_CONFIG_SRCDIR([src/rcomain.c])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIR([m4])
 
@@ -52,5 +52,6 @@ AC_CHECK_FUNCS([floor memchr memmove memset sqrt strcasecmp strchr strrchr strto
 
 AM_INIT_AUTOMAKE([-Wall])
 AC_CONFIG_FILES([7z/Makefile
-		 Makefile])
+		 Makefile
+		 src/Makefile])
 AC_OUTPUT

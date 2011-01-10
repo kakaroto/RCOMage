@@ -55,8 +55,8 @@ BREAK_LONG_LINES=" \
 
 
 # Fix indentation
-indent $BLANKS $COMMENTS $STATEMENTS $DECLARATIONS $INDENTATION $BREAK_LONG_LINES *.[ch]
+indent $BLANKS $COMMENTS $STATEMENTS $DECLARATIONS $INDENTATION $BREAK_LONG_LINES src/*.[ch]
 
 # Remove all trailing whitespaces
-sed 's/[ \t]*$//' -i *.[ch]
+sed 's/[ \t]*$//' -i src/*.[ch]
 
