@@ -1,5 +1,10 @@
 RCOMage Changelog:
 
+Current development version
+ - Update INIs - this will change the XML format and may cause incompatibilities with XMLs dumped from earlier versions
+ - Enable RLZ compression (no decompression support at the moment)
+ - Some bug fixes and changes with VSMX handling
+
 v1.1.1  (2nd June, 2010)
  - Add --ini-dir option to allow specifying INI directory for the CLI
  - Add version tag 0x97 as a valid PS3 tag (fixes some issues with dumping RCOs from older PS3 firmwares) [thanks to Mr Shizzy for the samples]
