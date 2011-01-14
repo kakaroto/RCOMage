@@ -48,28 +48,34 @@ enum {
   VID_NOTHING = 0x0,		// dummy
   VID_OPERATOR_ASSIGN = 0x1,
   VID_OPERATOR_ADD = 0x2,
-  VID_OPERATOR_SUBTRACT = 0x3,	// guess
+  VID_OPERATOR_SUBTRACT = 0x3,
   VID_OPERATOR_MULTIPLY = 0x4,
-  VID_OPERATOR_DIVIDE = 0x5,	// guess
-  VID_UNK_6 = 0x6,
-
+  VID_OPERATOR_DIVIDE = 0x5,
+  VID_OPERATOR_MOD = 0x6,
+  VID_OPERATOR_POSITIVE = 0x7,
   VID_OPERATOR_NEGATE = 0x8,
   VID_OPERATOR_NOT = 0x9,
-
+  VID_P_INCREMENT = 0xa,
+  VID_P_DECREMENT = 0xb,
   VID_INCREMENT = 0xc,
-  VID_DECREMENT = 0xd,		// guess
+  VID_DECREMENT = 0xd,
   VID_OPERATOR_EQUAL = 0xe,
   VID_OPERATOR_NOT_EQUAL = 0xf,
-  VID_OPERATOR_CASE_LABEL = 0x10,	// same as VID_OPERATOR_EQUAL, just
-  // used in switch statements
-
+  VID_OPERATOR_IDENTITY = 0x10,	// === operator; used in case labels
+  VID_OPERATOR_NON_IDENTITY = 0x11,
   VID_OPERATOR_LT = 0x12,
   VID_OPERATOR_LTE = 0x13,
-  VID_OPERATOR_GT = 0x14,
-  VID_OPERATOR_GTE = 0x15,
+  VID_OPERATOR_GTE = 0x14,
+  VID_OPERATOR_GT = 0x15,
 
-  VID_UNK_1A = 0x1a,
-
+  VID_OPERATOR_TYPEOF = 0x18,
+  VID_OPERATOR_B_AND = 0x19,
+  VID_OPERATOR_B_XOR = 0x1a,
+  VID_OPERATOR_B_OR = 0x1b,
+  VID_OPERATOR_B_NOT = 0x1c,
+  VID_OPERATOR_LSHIFT = 0x1d,
+  VID_OPERATOR_RSHIFT = 0x1e,
+  VID_OPERATOR_URSHIFT = 0x1f,
   VID_STACK_PUSH = 0x20,
 
   VID_END_STMT = 0x22,
@@ -79,7 +85,7 @@ enum {
   VID_CONST_INT = 0x26,
   VID_CONST_FLOAT = 0x27,
   VID_CONST_STRING = 0x28,
-
+  VID_CONST_OBJECT = 0x29,
   VID_FUNCTION = 0x2a,
   VID_ARRAY = 0x2b,		// start an array constant
   VID_THIS = 0x2c,
@@ -91,7 +97,7 @@ enum {
   // items off the stack
   VID_UNSET = 0x32,		// guess; looks like above, but only with one
   // item
-
+  VID_OBJ_ADD_ATTR = 0x33,
   VID_ARRAY_INDEX = 0x34,
 
   VID_ARRAY_INDEX_ASSIGN = 0x36,
@@ -104,10 +110,12 @@ enum {
   VID_JUMP_FALSE = 0x3b,
   VID_CALL_FUNC = 0x3c,
   VID_CALL_METHOD = 0x3d,
-  VID_CALL_INBUILT = 0x3e,
+  VID_CALL_NEW = 0x3e,
   VID_RETURN = 0x3f,
 
   VID_END = 0x45,
+  VID_DEBUG_FILE = 0x46,
+  VID_DEBUG_LINE = 0x47,
 
   VID_MAKE_FLOAT_ARRAY = 0x49	// weird??
 };
@@ -119,32 +127,32 @@ const wchar VsmxDecOps[][50] = {
   L"SUBTRACT",
   L"MULTIPLY",
   L"DIVIDE",
-  L"UNK_6",
-  L"UNKNOWN_7",
+  L"MODULUS",
+  L"POSITIVE",
   L"NEGATE",
   L"NOT",
-  L"UNKNOWN_A",
-  L"UNKNOWN_B",
+  L"PRE_INCREMENT",
+  L"PRE_DECREMENT",
   L"INCREMENT",
   L"DECREMENT",
   L"TEST_EQUAL",
   L"TEST_NOT_EQUAL",
-  L"TEST_CASE_EQUAL",
-  L"UNKNOWN_11",
+  L"TEST_IDENTITY",
+  L"TEST_NON_IDENTITY",
   L"TEST_LESS_THAN",
   L"TEST_LESS_EQUAL_THAN",
-  L"TEST_MORE_THAN",
   L"TEST_MORE_EQUAL_THAN",
+  L"TEST_MORE_THAN",
   L"UNKNOWN_16",
   L"UNKNOWN_17",
-  L"UNKNOWN_18",
-  L"UNKNOWN_19",
-  L"UNK_1A",
-  L"UNKNOWN_1B",
-  L"UNKNOWN_1C",
-  L"UNKNOWN_1D",
-  L"UNKNOWN_1E",
-  L"UNKNOWN_1F",
+  L"TYPEOF",
+  L"BINARY_AND",
+  L"BINARY_XOR",
+  L"BINARY_OR",
+  L"BINARY_NOT",
+  L"LSHIFT",
+  L"RSHIFT",
+  L"UNSIGNED_RSHIFT",
   L"STACK_PUSH",
   L"UNKNOWN_21",
   L"END_STATEMENT",
@@ -154,7 +162,7 @@ const wchar VsmxDecOps[][50] = {
   L"CONST_INT",
   L"CONST_FLOAT",
   L"CONST_STRING",
-  L"UNKNOWN_29",
+  L"CONST_OBJECT",
   L"FUNCTION",
   L"CONST_ARRAY",
   L"THIS_OBJECT",
@@ -164,7 +172,7 @@ const wchar VsmxDecOps[][50] = {
   L"METHOD",
   L"SET",
   L"UNSET",
-  L"UNKNOWN_33",
+  L"OBJECT_ADD_ATTRIBUTE",
   L"ARRAY_INDEX",
   L"UNKNOWN_35",
   L"ARRAY_INDEX_ASSIGN",
@@ -175,7 +183,7 @@ const wchar VsmxDecOps[][50] = {
   L"JUMP_IF_FALSE",
   L"CALL_FUNCTION",
   L"CALL_METHOD",
-  L"CALL_INBUILT",
+  L"CALL_NEW",
   L"RETURN",
   L"UNKNOWN_40",
   L"UNKNOWN_41",
@@ -183,8 +191,8 @@ const wchar VsmxDecOps[][50] = {
   L"UNKNOWN_43",
   L"UNKNOWN_44",
   L"END_SCRIPT",
-  L"UNKNOWN_46",
-  L"UNKNOWN_47",
+  L"DEBUG_FILE",
+  L"DEBUG_LINE",
   L"UNKNOWN_48",
   L"MAKE_FLOAT_ARRAY"
 };
@@ -521,12 +529,14 @@ VsmxDecode (VsmxMem * in, FILE * out)
 	}
 	break;
       case VID_CONST_INT:
+      case VID_DEBUG_LINE:
 	fwprintf (out, L" %u", in->code[i].val.u32);
 	break;
       case VID_CONST_FLOAT:
 	fwprintf (out, L" %#g", in->code[i].val.f);
 	break;
       case VID_CONST_STRING:
+      case VID_DEBUG_FILE:
 	CHECK_INDEX (in->numText, "text");
 	fwprintf (out, L" \"%ls\"", in->pText[in->code[i].val.u32]);
 	break;
@@ -548,15 +558,16 @@ VsmxDecode (VsmxMem * in, FILE * out)
       case VID_METHOD:
       case VID_UNK_31:
       case VID_UNSET:
+      case VID_OBJ_ADD_ATTR:
 	CHECK_INDEX (in->numProp, "property");
 	fwprintf (out, L" %ls", in->pProp[in->code[i].val.u32]);
 	break;
       case VID_FUNCTION:
 	if (in->code[i].id >> 16 & 0xFF)
 	  warning
-	      ("Unexpected flag value for function at line %d, expected 0, got %d",
+	      ("Unexpected localvars value for function at line %d, expected 0, got %d",
 	      i + 1, in->code[i].id >> 16 & 0xFF);
-	fwprintf (out, L" args=%u, flag=%u, start_line=%u",
+	fwprintf (out, L" args=%u, localvars=%u, start_line=%u",
 	    (in->code[i].id >> 8) & 0xFF, (in->code[i].id >> 24) & 0xFF,
 	    in->code[i].val.u32 + 1);
 	break;
@@ -574,7 +585,7 @@ VsmxDecode (VsmxMem * in, FILE * out)
 	// function calls
       case VID_CALL_FUNC:
       case VID_CALL_METHOD:
-      case VID_CALL_INBUILT:
+      case VID_CALL_NEW:
 	fwprintf (out, L" args=%u", in->code[i].val.u32);
 	break;
 
@@ -588,23 +599,35 @@ VsmxDecode (VsmxMem * in, FILE * out)
       case VID_OPERATOR_SUBTRACT:
       case VID_OPERATOR_MULTIPLY:
       case VID_OPERATOR_DIVIDE:
-      case VID_UNK_6:
+      case VID_OPERATOR_MOD:
+      case VID_OPERATOR_POSITIVE:
       case VID_OPERATOR_NEGATE:
       case VID_OPERATOR_NOT:
+      case VID_P_INCREMENT:
+      case VID_P_DECREMENT:
       case VID_INCREMENT:
       case VID_DECREMENT:
+      case VID_OPERATOR_TYPEOF:
       case VID_OPERATOR_EQUAL:
       case VID_OPERATOR_NOT_EQUAL:
-      case VID_OPERATOR_CASE_LABEL:
+      case VID_OPERATOR_IDENTITY:
+      case VID_OPERATOR_NON_IDENTITY:
       case VID_OPERATOR_LT:
       case VID_OPERATOR_LTE:
       case VID_OPERATOR_GT:
       case VID_OPERATOR_GTE:
-      case VID_UNK_1A:
+      case VID_OPERATOR_B_AND:
+      case VID_OPERATOR_B_XOR:
+      case VID_OPERATOR_B_OR:
+      case VID_OPERATOR_B_NOT:
+      case VID_OPERATOR_LSHIFT:
+      case VID_OPERATOR_RSHIFT:
+      case VID_OPERATOR_URSHIFT:
       case VID_STACK_PUSH:
       case VID_END_STMT:
       case VID_CONST_NULL:
       case VID_CONST_EMPTYARRAY:
+      case VID_CONST_OBJECT:
       case VID_ARRAY:
       case VID_THIS:
       case VID_ARRAY_INDEX:
@@ -764,6 +787,7 @@ VsmxEncode (FILE * in)
 	break;
       case VID_CONST_INT:
       case VID_UNNAMED_VAR:
+      case VID_DEBUG_LINE:
 	swscanf (arg, L"%u", &argNum);
 	break;
       case VID_CONST_FLOAT:
@@ -771,6 +795,7 @@ VsmxEncode (FILE * in)
 	break;
 
       case VID_CONST_STRING:
+      case VID_DEBUG_FILE:
 	{
 	  if (arg[0] != '"' || arg[wcslen (arg) - 1] != '"') {
 	    warning ("[line %d] Bad string style.", lineCount);
@@ -792,6 +817,7 @@ VsmxEncode (FILE * in)
       case VID_METHOD:
       case VID_UNK_31:
       case VID_UNSET:
+      case VID_OBJ_ADD_ATTR:
 	argNum =
 	    VsmxAddText ((void **) &ret->prop, &oProp, &ret->lenProp,
 	    &ret->numProp, arg, sizeof (*(ret->prop)));
@@ -802,7 +828,7 @@ VsmxEncode (FILE * in)
 	  int iArgs, iFlag;
 
 	  // TODO: better parser here
-	  swscanf (arg, L"args=%u, flag=%u, start_line=%u", &iArgs, &iFlag,
+	  swscanf (arg, L"args=%u, localvars=%u, start_line=%u", &iArgs, &iFlag,
 	      &argNum);
 	  argNum--;
 	  opNum2 = ((iFlag & 0xFF) << 24) | ((iArgs & 0xFF) << 8) | opNum2;
@@ -815,7 +841,7 @@ VsmxEncode (FILE * in)
 	break;
       case VID_CALL_FUNC:
       case VID_CALL_METHOD:
-      case VID_CALL_INBUILT:
+      case VID_CALL_NEW:
 	swscanf (arg, L"args=%u", &argNum);
 	break;
 
@@ -829,23 +855,35 @@ VsmxEncode (FILE * in)
       case VID_OPERATOR_SUBTRACT:
       case VID_OPERATOR_MULTIPLY:
       case VID_OPERATOR_DIVIDE:
-      case VID_UNK_6:
+      case VID_OPERATOR_MOD:
+      case VID_OPERATOR_POSITIVE:
       case VID_OPERATOR_NEGATE:
       case VID_OPERATOR_NOT:
+      case VID_P_INCREMENT:
+      case VID_P_DECREMENT:
       case VID_INCREMENT:
       case VID_DECREMENT:
+      case VID_OPERATOR_TYPEOF:
       case VID_OPERATOR_EQUAL:
       case VID_OPERATOR_NOT_EQUAL:
-      case VID_OPERATOR_CASE_LABEL:
+      case VID_OPERATOR_IDENTITY:
+      case VID_OPERATOR_NON_IDENTITY:
       case VID_OPERATOR_LT:
       case VID_OPERATOR_LTE:
       case VID_OPERATOR_GT:
       case VID_OPERATOR_GTE:
-      case VID_UNK_1A:
+      case VID_OPERATOR_B_AND:
+      case VID_OPERATOR_B_XOR:
+      case VID_OPERATOR_B_OR:
+      case VID_OPERATOR_B_NOT:
+      case VID_OPERATOR_LSHIFT:
+      case VID_OPERATOR_RSHIFT:
+      case VID_OPERATOR_URSHIFT:
       case VID_STACK_PUSH:
       case VID_END_STMT:
       case VID_CONST_NULL:
       case VID_CONST_EMPTYARRAY:
+      case VID_CONST_OBJECT:
       case VID_ARRAY:
       case VID_THIS:
       case VID_ARRAY_INDEX:
@@ -905,6 +943,7 @@ struct __VsmxDecompileStack {
   wchar str[MAX_TEXT_LEN];	// a bit of RAM wastage perhaps
   VSMXGroup item;
   int arrayFlag;
+  int objectFlag;
 
   VsmxDecompileStack *prev;
   uint32_t depth;
@@ -1036,6 +1075,7 @@ VsmxDecompile (VsmxMem * in, FILE * out)
   for (i = 0; i < in->codeGroups; i++) {
     item.str[0] = 0;
     item.arrayFlag = 0;
+    item.objectFlag = 0;
 
     item.item.id = 0;
     item.item.val.u32 = 0;
@@ -1123,15 +1163,21 @@ VsmxDecompile (VsmxMem * in, FILE * out)
       case VID_OPERATOR_DIVIDE:
 	if (!op[0])
 	  wcscpy (op, L"/");
-      case VID_UNK_6:
+      case VID_OPERATOR_MOD:
 	if (!op[0])
-	  wcscpy (op, L"<op6>");	// TODO: fix dummy
+	  wcscpy (op, L"%");
       case VID_OPERATOR_EQUAL:
 	if (!op[0])
 	  wcscpy (op, L"==");
       case VID_OPERATOR_NOT_EQUAL:
 	if (!op[0])
 	  wcscpy (op, L"!=");
+      case VID_OPERATOR_IDENTITY:
+	if (!op[0])
+	  wcscpy (op, L"===");
+      case VID_OPERATOR_NON_IDENTITY:
+	if (!op[0])
+	  wcscpy (op, L"!==");
       case VID_OPERATOR_LT:
 	if (!op[0])
 	  wcscpy (op, L"<");
@@ -1144,9 +1190,24 @@ VsmxDecompile (VsmxMem * in, FILE * out)
       case VID_OPERATOR_GTE:
 	if (!op[0])
 	  wcscpy (op, L">=");
-      case VID_UNK_1A:
+      case VID_OPERATOR_B_AND:
 	if (!op[0])
-	  wcscpy (op, L"<op1A>");	// TODO: fix dummy
+	  wcscpy (op, L"&");
+      case VID_OPERATOR_B_XOR:
+	if (!op[0])
+	  wcscpy (op, L"^");
+      case VID_OPERATOR_B_OR:
+	if (!op[0])
+	  wcscpy (op, L"|");
+      case VID_OPERATOR_LSHIFT:
+	if (!op[0])
+	  wcscpy (op, L"<<");
+      case VID_OPERATOR_RSHIFT:
+	if (!op[0])
+	  wcscpy (op, L">>");
+      case VID_OPERATOR_URSHIFT:
+	if (!op[0])
+	  wcscpy (op, L">>>");
 	{			// TODO: need to consider when to use brackets
 	  VsmxDecompileStack *left, *right;
 
@@ -1161,12 +1222,21 @@ VsmxDecompile (VsmxMem * in, FILE * out)
 	}
 	break;
 
+      case VID_OPERATOR_POSITIVE:
+	if (!op[0])
+	  wcscpy (op, L"+");
       case VID_OPERATOR_NEGATE:
 	if (!op[0])
 	  wcscpy (op, L"-");
       case VID_OPERATOR_NOT:
 	if (!op[0])
 	  wcscpy (op, L"!");
+      case VID_OPERATOR_B_NOT:
+	if (!op[0])
+	  wcscpy (op, L"~");
+      case VID_OPERATOR_TYPEOF:
+	if (!op[0])
+	  wcscpy (op, L"typeof ");
 	{
 	  VsmxDecompileStack *prev;
 
@@ -1178,9 +1248,11 @@ VsmxDecompile (VsmxMem * in, FILE * out)
 	}
 	break;
 
+      case VID_P_INCREMENT:
       case VID_INCREMENT:
 	if (!op[0])
 	  wcscpy (op, L"++");
+      case VID_P_DECREMENT:
       case VID_DECREMENT:
 	if (!op[0])
 	  wcscpy (op, L"--");
@@ -1189,7 +1261,10 @@ VsmxDecompile (VsmxMem * in, FILE * out)
 
 	  prev = VsmxDecompileStackPop (&stack);
 	  // swprintf(item.str, MAX_TEXT_LEN, L"-(%s)", prev->str);
-	  SWPRINTF_ITEM ("(%ls)%ls", prev->str, op);
+	  if (in->code[i].id & 0xFF == VID_P_INCREMENT || in->code[i].id & 0xFF == VID_P_DECREMENT)
+	    SWPRINTF_ITEM ("%ls(%ls)", op, prev->str);
+	  else
+	    SWPRINTF_ITEM ("(%ls)%ls", prev->str, op);
 	  VsmxDecompileStackPush (&stack, &item);
 	  free (prev);
 	}
@@ -1311,6 +1386,42 @@ VsmxDecompile (VsmxMem * in, FILE * out)
 	}
 	break;
 
+      case VID_CONST_OBJECT:
+	wcscpy (item.str, L"{}");
+	item.objectFlag = 1;
+	VsmxDecompileStackPush (&stack, &item);
+	break;
+      case VID_OBJ_ADD_ATTR:
+	{
+	  VsmxDecompileStack *obj, *prev;
+
+	  CHECK_INDEX (in->numProp, "prop");
+	  
+	  prev = VsmxDecompileStackPop (&stack);
+	  obj = VsmxDecompileStackPop (&stack);
+	  if (obj->objectFlag == 0) {
+	    warning ("Object elem being pushed, but object not found at %d!", i);
+	  } else if (obj->objectFlag == 1) {	// first element
+	    SWPRINTF_ITEM ("{ %ls: %ls }", in->pProp[in->code[i].val.u32], prev->str);
+	    item.objectFlag = 2;
+	    VsmxDecompileStackPush (&stack, &item);
+	  } else {
+	    uint32_t aLen = wcslen (obj->str);
+
+	    if (aLen < 3) {
+	      error ("Internal object handling error at %d!", i);
+	      return 1;
+	    }
+	    obj->str[aLen - 2] = L'\0';
+	    SWPRINTF_ITEM ("%ls, %ls: %ls }", obj->str, in->pProp[in->code[i].val.u32], prev->str);
+	    item.objectFlag = 2;
+	    VsmxDecompileStackPush (&stack, &item);
+	  }
+	  free (prev);
+	  free (obj);
+	}
+	break;
+
       case VID_ARRAY:
 	wcscpy (item.str, L"[]");
 	item.arrayFlag = 1;
@@ -1322,7 +1433,7 @@ VsmxDecompile (VsmxMem * in, FILE * out)
 
 	  prev = VsmxDecompileStackPop (&stack);
 	  array = VsmxDecompileStackPop (&stack);
-	  if (!array->arrayFlag) {
+	  if (array->arrayFlag == 0) {
 	    warning ("Array elem being pushed, but array not found at %d!", i);
 	  } else if (array->arrayFlag == 1) {	// first element
 	    SWPRINTF_ITEM ("[ %ls ]", prev->str);
@@ -1492,7 +1603,7 @@ VsmxDecompile (VsmxMem * in, FILE * out)
 
       case VID_CALL_FUNC:
       case VID_CALL_METHOD:
-      case VID_CALL_INBUILT:
+      case VID_CALL_NEW:
 	{
 	  if (stack->depth < in->code[i].val.u32) {
 	    error
@@ -1537,6 +1648,9 @@ VsmxDecompile (VsmxMem * in, FILE * out)
 	    prev = VsmxDecompileStackPop (&stack);
 	    // swprintf(item.str, MAX_TEXT_LEN, L"%s( )", prev->str);
 	    SWPRINTF_ITEM ("%ls()", prev->str);
+	  }
+	  if(in->code[i].id & 0xFF == VID_CALL_NEW) {
+	    SWPRINTF_ITEM ("new %ls", item.str); 
 	  }
 	  free (prev);
 	  VsmxDecompileStackPush (&stack, &item);
@@ -1777,6 +1891,11 @@ VsmxDecompile (VsmxMem * in, FILE * out)
 	if (i + 1 < in->codeGroups) {
 	  warning ("End marker found at %d, but is not end of code!", i);
 	}
+	break;
+
+      // ignore debugging stuff
+      case VID_DEBUG_FILE:
+      case VID_DEBUG_LINE:
 	break;
 
       default:
