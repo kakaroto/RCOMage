@@ -210,6 +210,30 @@ strwcpy (wchar_t * dest, const char *src, unsigned int maxLen)
   return dest;
 }
 
+// similar to wcscat, except it puts the s2 before s1, rather than after
+static inline wchar_t *
+wcsprecat (wchar_t * dest, const wchar_t *src, unsigned int maxLen)
+{
+  unsigned int len = wcslen(src);
+  unsigned int destLen;
+  if(len >= maxLen) {
+    wmemcpy (dest, src, maxLen);
+    dest[maxLen-1] = L'\0';
+    return dest;
+  }
+  // unfortunately, wcscpy can't have overlapping ranges
+  destLen = wcslen(dest);
+  if(len + destLen >= maxLen)
+    destLen = maxLen - len;
+  *(dest + len + destLen) = L'\0';
+  while(destLen--) {
+    *(dest + len + destLen) = *(dest + destLen);
+  }
+  // wcscpy (dest + len, dest);
+  wmemcpy (dest, src, len);
+  return dest;
+}
+
 VsmxMem *
 readVSMX (FILE * fp)
 {
@@ -1375,13 +1399,18 @@ VsmxDecompile (VsmxMem * in, FILE * out)
 
 	  for (j = 0; j < in->code[i].val.u32; j++) {
 	    prev = VsmxDecompileStackPop (&stack);
-	    if (j)
-	      SWPRINTF_ITEM (" %ls,%ls", prev->str, item.str);
-	    else
+	    if (j) {
+	      wchar_t tmp[MAX_TEXT_LEN];
+	      swprintf (tmp, L" %ls,", prev->str);
+	      wcsprecat (item.str, tmp, MAX_TEXT_LEN);
+	      // SWPRINTF_ITEM (" %ls,%ls", prev->str, item.str);
+	    } else
 	      SWPRINTF_ITEM (" %ls ", prev->str);
 	    free (prev);
 	  }
-	  SWPRINTF_ITEM ("[%ls]", item.str);
+	  wcscat (item.str, L"]");
+	  wcsprecat (item.str, L"[", MAX_TEXT_LEN);
+	  // SWPRINTF_ITEM ("[%ls]", item.str);
 	  VsmxDecompileStackPush (&stack, &item);
 	}
 	break;
@@ -1649,8 +1678,8 @@ VsmxDecompile (VsmxMem * in, FILE * out)
 	    // swprintf(item.str, MAX_TEXT_LEN, L"%s( )", prev->str);
 	    SWPRINTF_ITEM ("%ls()", prev->str);
 	  }
-	  if(in->code[i].id & 0xFF == VID_CALL_NEW) {
-	    SWPRINTF_ITEM ("new %ls", item.str); 
+	  if((in->code[i].id & 0xFF) == VID_CALL_NEW) {
+	    wcsprecat (item.str, L"new ", MAX_TEXT_LEN);
 	  }
 	  free (prev);
 	  VsmxDecompileStackPush (&stack, &item);
