@@ -25,8 +25,11 @@ int get_ini_line (FILE * fp, char *buf, char **out1, char **out2);
 static int is_dir(char *path)
 {
   WIN32_FIND_DATA fd;
-  CloseHandle(FindFirstFile(path, &fd));
-  return (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY);
+  HANDLE h = FindFirstFile(path, &fd);
+  if(h == INVALID_HANDLE_VALUE)
+    return 0;
+  CloseHandle(h);
+  return (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY && strlen(fd.cFileName) > 0);
 }
 #else
 #include <sys/types.h>
