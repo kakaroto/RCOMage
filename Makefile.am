@@ -6,3 +6,13 @@
 
 SUBDIRS = 7z \
           src
+
+rcomagedir = $(pkgdatadir)
+
+rcomage_DATA = \
+	data/animattribdef-ps3.ini \
+	data/animattribdef-psp.ini \
+	data/miscmap.ini \
+	data/objattribdef-ps3.ini \
+	data/objattribdef-psp.ini \
+	data/tagmap.ini

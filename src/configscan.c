@@ -20,12 +20,36 @@ char *configDir = NULL;
 
 int get_ini_line (FILE * fp, char *buf, char **out1, char **out2);
 
-// always try to load the INI files from the same dir as the executable
 #ifdef WIN32
 #include <windows.h>
+static int is_dir(char *path)
+{
+  WIN32_FIND_DATA fd;
+  CloseHandle(FindFirstFile(path, &fd));
+  return (fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY);
+}
 #else
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <unistd.h>
+static int is_dir(char *path)
+{
+  struct stat st;
+  int ret;
+
+  ret = lstat(path, &st);
+  if (ret < 0)
+    return 0;
+
+  return S_ISDIR(st.st_mode);
+}
 #endif
+
+// Try to load the INI files from different places in this order:
+//   1. from the dir specified with the --ini-dir option
+//   2. from the dir specified in the RCOMAGE_DATADIR environment variable
+//   3. from the dir specified in DATADIR from ./configure if it exists
+//   4. from the same dir as the executable
 FILE *
 fopen_local (char *fn, char *mode)
 {
@@ -33,7 +57,9 @@ fopen_local (char *fn, char *mode)
   int bytes = 0;
   char *p = NULL;
 
-  if (configDir) {
+  if (configDir ||
+      ((configDir = getenv("RCOMAGE_DATADIR")) != NULL) ||
+      (is_dir(DATADIR) && (configDir = DATADIR)) ) {
     strcpy (path, configDir);
     if (path[strlen (path) - 1] != '/' && path[strlen (path) - 1] != '\\') {
       char sepAdd[2] = { DIR_SEPARATOR, '\0' };

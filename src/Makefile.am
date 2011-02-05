@@ -10,7 +10,8 @@ include $(top_srcdir)/common.mk
 AM_CFLAGS = \
 	$(ERROR_CFLAGS) \
 	$(ZLIB_CFLAGS) \
-	$(LIBXML2_CFLAGS)
+	$(LIBXML2_CFLAGS) \
+	-DDATADIR='"$(pkgdatadir)"'
 
 bin_PROGRAMS = rcomage
 
